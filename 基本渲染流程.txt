@@ -1,0 +1,36 @@
+https://vulkan-tutorial.com/en/Overview
+
+绘制三角形需要什么
+
+第 1 步 - 选择实例和物理设备
+第 2 步 - 逻辑设备和队列系列
+第 3 步 - 窗口表面和交换链
+第 4 步 - 图像视图和帧缓冲区
+第 5 步 - 渲染通道
+第 6 步 - 图形管道
+第 7 步 - 命令池和命令缓冲区
+第 8 步 - 主循环
+
+
+所以简而言之，要绘制第一个三角形，我们需要：
+
+创建实例 (VkInstance)
+
+选择支持的物理设备图形卡 （VkPhysicalDevice）)
+
+创建逻辑设备(VkDevice) 和 队列系列(VkQueue) 用于绘图和演示
+
+创建窗口、窗口表面和交换链
+
+将交换链图像封装到 VkImageView 中 
+
+创建指定渲染目标和用法的渲染通道(VkFramebuffer )
+
+为渲染通道创建帧缓冲区 (VkFramebuffer)
+
+设置图形管道(VkPipeline)
+
+为每一个可能的绘制命令(VkCommandBuffer )分配和记录命令缓冲区 Swap Chain 镜像
+
+通过获取图像、提交正确的绘制命令缓冲区和 将图像返回到交换链
+
