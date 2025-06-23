@@ -167,43 +167,52 @@ private:
     void createCommandPool();
 
     /**
-     * @brief 从命令池中分配一个主命令缓冲（Primary Command Buffer）。
+     * @brief 为每一帧分配主命令缓冲（Primary Command Buffers）。
      *
-     * 主命令缓冲可用于直接提交到图形队列，记录渲染指令等。
-     * 命令缓冲分配基于之前创建的 `_commandPool`，并将缓存在 `_commandBuffer` 成员中。
+     * Vulkan 中的命令缓冲用于记录 GPU 要执行的渲染指令。
+     * 由于采用了多帧并发（如双缓冲或三缓冲），每一帧都需要一个独立的命令缓冲。
+     *
+     * - 使用 _commandPool 分配命令缓冲。
+     * - 命令缓冲级别为 VK_COMMAND_BUFFER_LEVEL_PRIMARY，表示可直接提交给队列。
+     * - 分配数量等于 _MAX_FRAMES_IN_FLIGHT，用于支持多帧并发。
      *
      * @throws std::runtime_error 如果命令缓冲分配失败。
      */
-    void createCommandBuffer();
+    void createCommandBuffers();
 
     /**
-     * @brief 创建帧同步对象：信号量和栅栏。
+     * @brief 创建每帧所需的同步对象（信号量和栅栏）。
      *
-     * 本函数为单帧渲染创建同步对象，包括：
-     * - `_imageAvailableSemaphore`：用于在交换链图像可用时通知渲染。
-     * - `_renderFinishedSemaphore`：用于在渲染完成后通知图像可以呈现。
-     * - `_inFlightFence`：用于 CPU 等待 GPU 渲染完成，避免 CPU 提早修改命令。
+     * Vulkan 使用同步对象来协调 CPU 与 GPU 之间的执行顺序，避免资源冲突。
+     * 本函数为每帧并发（通常为 2 或 3 帧）分配以下同步对象：
+     * - 图像可用信号量（_imageAvailableSemaphores）：在图像获取完成时被触发。
+     * - 渲染完成信号量（_renderFinishedSemaphores）：在命令缓冲执行完毕时触发，供呈现使用。
+     * - CPU-GPU 栅栏（_inFlightFences）：确保每帧开始时上一帧的命令已执行完毕。
      *
-     * 栅栏 `_inFlightFence` 使用 `VK_FENCE_CREATE_SIGNALED_BIT` 标志初始化，确保程序启动时不会因等待死锁。
+     * 所有信号量创建为初始未触发状态，栅栏设置为初始“已触发”，以允许第一帧立即开始渲染。
      *
-     * @throws std::runtime_error 如果创建任一同步对象失败。
+     * @throws std::runtime_error 如果任一同步对象创建失败。
      */
     void createSyncObjects();
 
     /**
-     * @brief 执行每一帧的渲染流程。
+     * @brief 每帧渲染逻辑（Frame Rendering）。
      *
-     * 此函数实现了基本的 Vulkan 图形渲染主循环操作，执行以下步骤：
+     * 本函数实现了 Vulkan 中的帧渲染流程，采用多帧并发（Frames in Flight）机制，
+     * 使用多个信号量（semaphores）和栅栏（fences）避免 CPU 与 GPU 同步阻塞。
      *
-     * 1. 等待上一帧 GPU 渲染完成（使用栅栏 `_inFlightFence`）；
-     * 2. 从交换链中获取下一张图像；
-     * 3. 重新录制命令缓冲；
-     * 4. 提交图形命令到图形队列；
-     * 5. 将渲染结果呈现到屏幕。
+     * 渲染流程概览：
+     * 1. 等待当前帧的栅栏，确保上一帧使用的资源已经可用；
+     * 2. 从交换链中获取一张可用图像；
+     * 3. 重置命令缓冲并记录新的渲染命令；
+     * 4. 提交渲染命令到图形队列，使用信号量同步 GPU 渲染流程；
+     * 5. 将渲染完成的图像提交给呈现队列进行显示；
+     * 6. 更新当前帧索引，实现循环帧处理（避免资源冲突）。
      *
-     * 使用了信号量与栅栏控制 CPU 与 GPU 同步，避免资源竞争。
-     *
-     * @throws std::runtime_error 如果命令提交失败。
+     * 注意：
+     * - 多帧并发通常设置为 2 或 3 帧；
+     * - 使用信号量确保图像获取与渲染顺序；
+     * - 使用栅栏确保命令缓冲在重用前不会被 GPU 使用中。
      */
     void drawFrame();
 
@@ -512,17 +521,22 @@ private:
     VkCommandPool _commandPool;
 
     // 主要的命令缓冲区，用于记录绘制指令
-    VkCommandBuffer _commandBuffer;
+    std::vector<VkCommandBuffer> _commandBuffers;
 
 private:
     // CPU-GPU 同步对象，标记当前帧是否执行完成
-    VkFence _inFlightFence;
+    std::vector<VkFence> _inFlightFences;
 
     // 信号量，表示交换链图像是否可用，等待此信号量后开始渲染
-    VkSemaphore _imageAvailableSemaphore;
+    std::vector<VkSemaphore> _imageAvailableSemaphores;
 
     // 信号量，表示渲染是否完成，等待此信号量后提交呈现请求
-    VkSemaphore _renderFinishedSemaphore;
+    std::vector<VkSemaphore> _renderFinishedSemaphores;
+
+private:
+    uint32_t _currentFrame = 0;
+
+    const int _MAX_FRAMES_IN_FLIGHT = 2;
 
 private:
     // 验证层,只有Debug时运行
