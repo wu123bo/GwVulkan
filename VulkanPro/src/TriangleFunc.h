@@ -359,6 +359,45 @@ private:
 
 private:
     /**
+     * @brief 窗口帧缓冲尺寸变化时的回调函数。
+     *
+     * 当用户调整窗口大小（如拖动窗口边界）时，GLFW 会调用此函数。
+     * Vulkan 需要在帧缓冲大小发生变化后重建交换链（Swapchain），
+     * 所以此处设置一个标志 `_framebufferResized`，在渲染循环中检测该标志并重建相关资源。
+     *
+     * @param window 触发事件的 GLFW 窗口句柄。
+     * @param width 新的帧缓冲区宽度（像素）。
+     * @param height 新的帧缓冲区高度（像素）。
+     */
+    static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
+
+    /**
+     * @brief 重建交换链及其相关资源。
+     *
+     * 当窗口尺寸发生变化（如最小化或用户手动调整大小）后，
+     * 原有的交换链不再适用。该函数等待窗口恢复有效大小后，
+     * 先使设备空闲，然后清理旧的交换链资源，再重新创建交换链、
+     * 图像视图和帧缓冲对象等依赖于交换链的资源。
+     *
+     * 注意：不要在绘制过程中调用此函数，应在 `vkQueuePresentKHR`
+     * 返回 `VK_ERROR_OUT_OF_DATE_KHR` 或 `VK_SUBOPTIMAL_KHR` 时调用，
+     * 或通过窗口大小回调设置的标志位触发。
+     */
+    void recreateSwapChain();
+
+    /**
+     * @brief 清理与交换链相关的资源。
+     *
+     * 此函数会销毁帧缓冲对象、图像视图和交换链本身。
+     * 在窗口尺寸改变时，必须先销毁这些旧资源，然后重建新的交换链及其依赖资源。
+     *
+     * 注意：此函数不销毁与交换链无关的资源，如渲染通道或图形管线等，
+     * 若这些资源依赖于交换链的格式或尺寸，也应在外部处理并重建。
+     */
+    void cleanupSwapChain();
+
+private:
+    /**
      * @brief 检查当前系统是否支持指定的 Vulkan 验证层（如 VK_LAYER_KHRONOS_validation）。
      *
      * 在启用调试功能前调用此函数确认验证层是否可用。
@@ -524,6 +563,8 @@ private:
     std::vector<VkCommandBuffer> _commandBuffers;
 
 private:
+    bool _framebufferResized = false;
+
     // CPU-GPU 同步对象，标记当前帧是否执行完成
     std::vector<VkFence> _inFlightFences;
 

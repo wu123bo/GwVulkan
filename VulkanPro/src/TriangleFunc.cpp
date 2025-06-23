@@ -27,10 +27,16 @@ void TriangleFunc::initWindow()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     //不可调整窗口大小
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     //创建GLFW窗口
     _window = glfwCreateWindow(_width, _height, "Vulkan", nullptr, nullptr);
+
+    // 绑定当前类实例指针到 GLFW 窗口，方便回调中访问类成员
+    glfwSetWindowUserPointer(_window, this);
+
+    // 设置窗口大小改变时的回调函数，负责标记交换链需要重新创建
+    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 }
 
 void TriangleFunc::initVulkan()
@@ -81,12 +87,23 @@ void TriangleFunc::mainLoop()
         glfwPollEvents();
         drawFrame();
     }
+
+    // 等待 GPU 完成所有操作
+    vkDeviceWaitIdle(_device);
 }
 
 void TriangleFunc::cleanup()
 {
-    // 等待 GPU 完成所有操作
-    vkDeviceWaitIdle(_device);
+    cleanupSwapChain();
+
+    // 销毁图形管线
+    vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
+
+    // 销毁管线布局（绑定资源布局）
+    vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+
+    // 销毁渲染通道（Render Pass）
+    vkDestroyRenderPass(_device, _renderPass, nullptr);
 
     for (size_t i = 0; i < _MAX_FRAMES_IN_FLIGHT; i++) {
         // 销毁渲染完成信号量，释放资源
@@ -101,28 +118,6 @@ void TriangleFunc::cleanup()
 
     // 销毁命令池，释放所有由命令池分配的命令缓冲区
     vkDestroyCommandPool(_device, _commandPool, nullptr);
-
-    // 销毁每一个帧缓冲对象（与图像视图和渲染通道绑定）
-    for (auto framebuffer : _swapChainFramebuffers) {
-        vkDestroyFramebuffer(_device, framebuffer, nullptr);
-    }
-
-    // 销毁图形管线
-    vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
-
-    // 销毁管线布局（绑定资源布局）
-    vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
-
-    // 销毁渲染通道（Render Pass）
-    vkDestroyRenderPass(_device, _renderPass, nullptr);
-
-    // 销毁所有交换链图像视图（ImageView）
-    for (auto imageView : _swapChainImageViews) {
-        vkDestroyImageView(_device, imageView, nullptr);
-    }
-
-    // 销毁交换链
-    vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 
     // 销毁逻辑设备
     vkDestroyDevice(_device, nullptr);
@@ -140,6 +135,7 @@ void TriangleFunc::cleanup()
 
     // 销毁 GLFW 创建的窗口，并释放 GLFW 所占资源
     glfwDestroyWindow(_window);
+
     glfwTerminate();
 }
 
@@ -649,66 +645,76 @@ void TriangleFunc::createSyncObjects()
 
 void TriangleFunc::drawFrame()
 {
-    // 等待当前帧的 GPU 渲染完成（即前一帧使用的 Fence 为信号状态）
+    // 等待当前帧对应的 Fence，确保上一帧的渲染完成
     vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
-    // 重置 Fence 状态，准备本帧重新使用
+    // 获取下一张可用于渲染的交换链图像索引
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame],
+                                            VK_NULL_HANDLE, &imageIndex);
+
+    // 如果交换链已过期（窗口大小改变等原因），重新创建交换链并返回
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    // 重置当前帧的 Fence，准备提交新的命令缓冲
     vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
 
-    // 从交换链中获取当前可用图像的索引，图像可用时会触发 imageAvailable 信号量
-    uint32_t imageIndex;
-    vkAcquireNextImageKHR(_device, _swapChain,
-                          UINT64_MAX,                                  // 无限等待直到图像可用
-                          _imageAvailableSemaphores[_currentFrame],    // 触发信号量
-                          VK_NULL_HANDLE, &imageIndex);
-
-    // 重置当前帧对应的命令缓冲并记录绘制指令
+    // 重置当前帧对应的命令缓冲区，准备记录新命令
     vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
+
+    // 记录命令缓冲区，指定当前渲染目标图像索引
     recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
 
-    // ---------------------- 提交绘制命令 ----------------------
+    // 准备提交信息，等待图像可用信号量，保证图像可写
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    // 等待 imageAvailable 信号量（图像可用）
     VkSemaphore waitSemaphores[] = {_imageAvailableSemaphores[_currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
-    // 提交当前帧命令缓冲
+    // 指定提交的命令缓冲区
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
 
-    // 指定渲染完成后发出的信号量（用于后续图像展示）
+    // 指定信号量，在渲染完成后发出，通知可以呈现
     VkSemaphore signalSemaphores[] = {_renderFinishedSemaphores[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    // 提交命令到图形队列并绑定 fence
+    // 提交命令缓冲区到图形队列，并绑定 Fence 以便同步
     if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
-    // ---------------------- 图像展示（Present） ----------------------
+    // 准备呈现信息，等待渲染完成信号量，保证图像可读
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    // 等待渲染完成信号量
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-
-    // 设置交换链和图像索引
     VkSwapchainKHR swapChains[] = {_swapChain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    // 呈现图像到屏幕
-    vkQueuePresentKHR(_presentQueue, &presentInfo);
+    // 进行图像呈现操作
+    result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
-    // 移动到下一帧（实现帧资源循环复用）
+    // 处理窗口大小改变或交换链子优化问题，重新创建交换链
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
+        _framebufferResized = false;
+        recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+
+    // 更新当前帧索引，循环使用多帧同步机制
     _currentFrame = (_currentFrame + 1) % _MAX_FRAMES_IN_FLIGHT;
 }
 
@@ -1021,6 +1027,51 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         throw std::runtime_error("failed to record command buffer!");
     }
+}
+
+void TriangleFunc::framebufferResizeCallback(GLFWwindow *window, int width, int height)
+{
+    auto app = reinterpret_cast<TriangleFunc *>(glfwGetWindowUserPointer(window));    // 获取绑定的应用实例指针
+    app->_framebufferResized = true;    // 标记帧缓冲已被调整大小，延迟处理重建交换链
+}
+
+void TriangleFunc::recreateSwapChain()
+{
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(_window, &width, &height);
+
+    // 当窗口被最小化时（宽或高为0），等待直到用户恢复窗口
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(_window, &width, &height);
+        glfwWaitEvents();    // 等待事件（例如窗口恢复）
+    }
+
+    vkDeviceWaitIdle(_device);    // 确保 GPU 不再使用旧的交换链资源
+
+    cleanupSwapChain();    // 销毁旧的交换链相关资源
+
+    createSwapChain();       // 重新创建交换链
+    createImageViews();      // 重新创建图像视图
+    createFramebuffers();    // 重新创建帧缓冲
+}
+
+void TriangleFunc::cleanupSwapChain()
+{
+    // 销毁每个图像的帧缓冲
+    for (auto framebuffer : _swapChainFramebuffers) {
+        vkDestroyFramebuffer(_device, framebuffer, nullptr);
+    }
+    _swapChainFramebuffers.clear();
+
+    // 销毁每个图像的图像视图
+    for (auto imageView : _swapChainImageViews) {
+        vkDestroyImageView(_device, imageView, nullptr);
+    }
+    _swapChainImageViews.clear();
+
+    // 销毁交换链本体
+    vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+    _swapChain = VK_NULL_HANDLE;
 }
 
 bool TriangleFunc::checkValidationLayerSupport()
