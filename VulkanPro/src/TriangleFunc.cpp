@@ -1,4 +1,4 @@
-#include "TriangleFunc.h"
+ï»¿#include "TriangleFunc.h"
 #include "Helper/Print.h"
 
 TriangleFunc::TriangleFunc()
@@ -21,121 +21,123 @@ void TriangleFunc::Run()
 
 void TriangleFunc::initWindow()
 {
-    //³õÊ¼»¯GLFW ¿â
+    // åˆå§‹åŒ–GLFW åº“
     glfwInit();
 
-    //½ûÓÃOpenGl API
+    // ç¦ç”¨OpenGl API
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    //²»¿Éµ÷Õû´°¿Ú´óĞ¡
-    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // ä¸å¯è°ƒæ•´çª—å£å¤§å°
+    //  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    //´´½¨GLFW´°¿Ú
+    // åˆ›å»ºGLFWçª—å£
     _window = glfwCreateWindow(_width, _height, "Vulkan", nullptr, nullptr);
 
-    // °ó¶¨µ±Ç°ÀàÊµÀıÖ¸Õëµ½ GLFW ´°¿Ú£¬·½±ã»Øµ÷ÖĞ·ÃÎÊÀà³ÉÔ±
+    // ç»‘å®šå½“å‰ç±»å®ä¾‹æŒ‡é’ˆåˆ° GLFW çª—å£ï¼Œæ–¹ä¾¿å›è°ƒä¸­è®¿é—®ç±»æˆå‘˜
     glfwSetWindowUserPointer(_window, this);
 
-    // ÉèÖÃ´°¿Ú´óĞ¡¸Ä±äÊ±µÄ»Øµ÷º¯Êı£¬¸ºÔğ±ê¼Ç½»»»Á´ĞèÒªÖØĞÂ´´½¨
+    // è®¾ç½®çª—å£å¤§å°æ”¹å˜æ—¶çš„å›è°ƒå‡½æ•°ï¼Œè´Ÿè´£æ ‡è®°äº¤æ¢é“¾éœ€è¦é‡æ–°åˆ›å»º
     glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 }
 
 void TriangleFunc::initImgui()
 {
-    // ¼ì²é ImGui °æ±¾£¬È·±£Á´½ÓµÄ¿â°æ±¾ÕıÈ·
+    // æ£€æŸ¥ ImGui ç‰ˆæœ¬ï¼Œç¡®ä¿é“¾æ¥çš„åº“ç‰ˆæœ¬æ­£ç¡®
     IMGUI_CHECKVERSION();
 
-    // ´´½¨ ImGui ÉÏÏÂÎÄ£¬ËùÓĞ ImGui ²Ù×÷¶¼»ùÓÚÕâ¸öÉÏÏÂÎÄ
+    // åˆ›å»º ImGui ä¸Šä¸‹æ–‡ï¼Œæ‰€æœ‰ ImGui æ“ä½œéƒ½åŸºäºè¿™ä¸ªä¸Šä¸‹æ–‡
     ImGui::CreateContext();
 
-    // »ñÈ¡ ImGui IO ÅäÖÃ¶ÔÏó£¬ÓÃÓÚÅäÖÃºÍ²éÑ¯ÊäÈëÊä³ö×´Ì¬
+    // è·å– ImGui IO é…ç½®å¯¹è±¡ï¼Œç”¨äºé…ç½®å’ŒæŸ¥è¯¢è¾“å…¥è¾“å‡ºçŠ¶æ€
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
 
-    // ÆôÓÃ¼üÅÌµ¼º½Ö§³Ö
+    // å¯ç”¨é”®ç›˜å¯¼èˆªæ”¯æŒ
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    // ÆôÓÃÓÎÏ·ÊÖ±úµ¼º½Ö§³Ö
+    // å¯ç”¨æ¸¸æˆæ‰‹æŸ„å¯¼èˆªæ”¯æŒ
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    // ÉèÖÃ ImGui Ê¹ÓÃ°µÉ«Ö÷ÌâÑùÊ½
+    // è®¾ç½® ImGui ä½¿ç”¨æš—è‰²ä¸»é¢˜æ ·å¼
     ImGui::StyleColorsDark();
 
-    // ³õÊ¼»¯ ImGui µÄÆ½Ì¨²ã GLFW Ö§³Ö£¬´«Èë Vulkan ´°¿ÚºÍÊÇ·ñ°²×°»Øµ÷
+    // åˆå§‹åŒ– ImGui çš„å¹³å°å±‚ GLFW æ”¯æŒï¼Œä¼ å…¥ Vulkan çª—å£å’Œæ˜¯å¦å®‰è£…å›è°ƒ
     ImGui_ImplGlfw_InitForVulkan(_window, true);
 
-    // ¼ÓÔØÖĞÎÄ×ÖÌå£¬ÉèÖÃ×ÖºÅ18£¬Ö§³ÖÍêÕûµÄÖĞÎÄ×Ö·û·¶Î§£¨GlyphRangesChineseFull£©
-    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\msyh.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+    // åŠ è½½ä¸­æ–‡å­—ä½“ï¼Œè®¾ç½®å­—å·18ï¼Œæ”¯æŒå®Œæ•´çš„ä¸­æ–‡å­—ç¬¦èŒƒå›´ï¼ˆGlyphRangesChineseFullï¼‰
+    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\STXINWEI.TTF", 18.0f, nullptr,
+                                 io.Fonts->GetGlyphRangesChineseFull());
+    IM_ASSERT(io.Fonts != nullptr);
 
-    // ´´½¨ ImGui ĞèÒªµÄ Vulkan ÃèÊö·û³Ø£¨Descriptor Pool£©£¬ÓÃÓÚ·ÖÅä×ÊÔ´
+    // åˆ›å»º ImGui éœ€è¦çš„ Vulkan æè¿°ç¬¦æ± ï¼ˆDescriptor Poolï¼‰ï¼Œç”¨äºåˆ†é…èµ„æº
     createImGuiDescriptorPool();
 
-    // ÌîĞ´ Vulkan ¶ËµÄ³õÊ¼»¯ĞÅÏ¢½á¹¹Ìå
+    // å¡«å†™ Vulkan ç«¯çš„åˆå§‹åŒ–ä¿¡æ¯ç»“æ„ä½“
     ImGui_ImplVulkan_InitInfo init_info{};
-    init_info.Instance = _instance;                     // Vulkan ÊµÀı¾ä±ú
-    init_info.PhysicalDevice = _physicalDevice;         // ÎïÀíÉè±¸¾ä±ú
-    init_info.Device = _device;                         // Âß¼­Éè±¸¾ä±ú
-    init_info.QueueFamily = _graphicsQueueFamily;       // Í¼ĞÎ¶ÓÁĞ×åË÷Òı
-    init_info.Queue = _graphicsQueue;                   // Í¼ĞÎ¶ÓÁĞ¾ä±ú
-    init_info.PipelineCache = VK_NULL_HANDLE;           // Pipeline »º´æ£¬Ò»°ãÎª null
-    init_info.DescriptorPool = _imguiDescriptorPool;    // ImGui Ê¹ÓÃµÄÃèÊö·û³Ø
-    init_info.RenderPass = _renderPass;                 // äÖÈ¾Í¨µÀ¾ä±ú
-    init_info.Subpass = 0;                              // äÖÈ¾Í¨µÀ×ÓÍ¨µÀË÷Òı
-    init_info.Allocator = nullptr;                      // ·ÖÅäÆ÷£¬Ä¬ÈÏ¿Õ
-    init_info.MinImageCount = _MAX_FRAMES_IN_FLIGHT;    // ×îĞ¡Í¼ÏñÊıÁ¿£¨ÓÃÓÚ¶àÖ¡Í¬Ê±»æÖÆ£©
-    init_info.ImageCount = static_cast<uint32_t>(_swapChainImages.size());    // ½»»»Á´Í¼ÏñÊıÁ¿
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;    // ¶àÖØ²ÉÑùÊıÁ¿£¬µ±Ç°ÉèÖÃÎª1£¨ÎŞ¶àÖØ²ÉÑù£©
-    init_info.CheckVkResultFn = check_vk_result;      // ´íÎó¼ì²é»Øµ÷º¯Êı£¨×Ô¶¨Òå£©
+    init_info.Instance = _instance;                                           // Vulkan å®ä¾‹å¥æŸ„
+    init_info.PhysicalDevice = _physicalDevice;                               // ç‰©ç†è®¾å¤‡å¥æŸ„
+    init_info.Device = _device;                                               // é€»è¾‘è®¾å¤‡å¥æŸ„
+    init_info.QueueFamily = _graphicsQueueFamily;                             // å›¾å½¢é˜Ÿåˆ—æ—ç´¢å¼•
+    init_info.Queue = _graphicsQueue;                                         // å›¾å½¢é˜Ÿåˆ—å¥æŸ„
+    init_info.PipelineCache = VK_NULL_HANDLE;                                 // Pipeline ç¼“å­˜ï¼Œä¸€èˆ¬ä¸º null
+    init_info.DescriptorPool = _imguiDescriptorPool;                          // ImGui ä½¿ç”¨çš„æè¿°ç¬¦æ± 
+    init_info.RenderPass = _renderPass;                                       // æ¸²æŸ“é€šé“å¥æŸ„
+    init_info.Subpass = 0;                                                    // æ¸²æŸ“é€šé“å­é€šé“ç´¢å¼•
+    init_info.Allocator = nullptr;                                            // åˆ†é…å™¨ï¼Œé»˜è®¤ç©º
+    init_info.MinImageCount = _MAX_FRAMES_IN_FLIGHT;                          // æœ€å°å›¾åƒæ•°é‡ï¼ˆç”¨äºå¤šå¸§åŒæ—¶ç»˜åˆ¶ï¼‰
+    init_info.ImageCount = static_cast<uint32_t>(_swapChainImages.size());    // äº¤æ¢é“¾å›¾åƒæ•°é‡
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;                            // å¤šé‡é‡‡æ ·æ•°é‡ï¼Œå½“å‰è®¾ç½®ä¸º1ï¼ˆæ— å¤šé‡é‡‡æ ·ï¼‰
+    init_info.CheckVkResultFn = check_vk_result;                              // é”™è¯¯æ£€æŸ¥å›è°ƒå‡½æ•°ï¼ˆè‡ªå®šä¹‰ï¼‰
 
-    // ³õÊ¼»¯ ImGui Vulkan ºó¶Ë£¬Íê³É Vulkan Ïà¹ØµÄ°ó¶¨ÉèÖÃ
+    // åˆå§‹åŒ– ImGui Vulkan åç«¯ï¼Œå®Œæˆ Vulkan ç›¸å…³çš„ç»‘å®šè®¾ç½®
     ImGui_ImplVulkan_Init(&init_info);
 
-    // ÉÏ´«×ÖÌåÎÆÀíµ½GPU£¨¿ÉÑ¡²½Öè£¬×¢ÊÍÁË£¬ĞèÒªÊ±È¡Ïû×¢ÊÍ£©
-    // VkCommandBuffer cmd = beginSingleTimeCommands();
-    // ImGui_ImplVulkan_CreateFontsTexture(cmd);
-    // endSingleTimeCommands(cmd);
+    // ä¸Šä¼ å­—ä½“çº¹ç†åˆ°GPUï¼ˆå¯é€‰æ­¥éª¤ï¼Œæ³¨é‡Šäº†ï¼Œéœ€è¦æ—¶å–æ¶ˆæ³¨é‡Šï¼‰
+    // VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+    // ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+    // endSingleTimeCommands(commandBuffer);
     // ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 void TriangleFunc::initVulkan()
 {
-    //´´½¨ Vulkan ÊµÀı£¨createInstance£©
+    // åˆ›å»º Vulkan å®ä¾‹ï¼ˆcreateInstanceï¼‰
     createInstance();
 
-    //ÉèÖÃµ÷ÊÔĞÅÏ¢»Øµ÷£¨setupDebugMessenger£©
+    // è®¾ç½®è°ƒè¯•ä¿¡æ¯å›è°ƒï¼ˆsetupDebugMessengerï¼‰
     setupDebugMessenger();
 
-    //´´½¨´°¿Ú±íÃæ£¨createSurface£©
+    // åˆ›å»ºçª—å£è¡¨é¢ï¼ˆcreateSurfaceï¼‰
     createSurface();
 
-    //Ñ¡ÔñºÏÊÊµÄÎïÀíÉè±¸£¨GPU£©£¨pickPhysicalDevice£©
+    // é€‰æ‹©åˆé€‚çš„ç‰©ç†è®¾å¤‡ï¼ˆGPUï¼‰ï¼ˆpickPhysicalDeviceï¼‰
     pickPhysicalDevice();
 
-    //´´½¨Âß¼­Éè±¸¼°¶ÓÁĞ£¨createLogicalDevice£©
+    // åˆ›å»ºé€»è¾‘è®¾å¤‡åŠé˜Ÿåˆ—ï¼ˆcreateLogicalDeviceï¼‰
     createLogicalDevice();
 
-    //´´½¨½»»»Á´£¨createSwapChain£©
+    // åˆ›å»ºäº¤æ¢é“¾ï¼ˆcreateSwapChainï¼‰
     createSwapChain();
 
-    //´´½¨½»»»Á´Í¼ÏñÊÓÍ¼£¨createImageViews£©
+    // åˆ›å»ºäº¤æ¢é“¾å›¾åƒè§†å›¾ï¼ˆcreateImageViewsï¼‰
     createImageViews();
 
-    //´´½¨äÖÈ¾Í¨µÀ£¨createRenderPass£©
+    // åˆ›å»ºæ¸²æŸ“é€šé“ï¼ˆcreateRenderPassï¼‰
     createRenderPass();
 
-    //´´½¨Í¼ĞÎ¹ÜÏß£¨createGraphicsPipeline£©
+    // åˆ›å»ºå›¾å½¢ç®¡çº¿ï¼ˆcreateGraphicsPipelineï¼‰
     createGraphicsPipeline();
 
-    //´´½¨Ö¡»º³å£¨createFramebuffers£©
+    // åˆ›å»ºå¸§ç¼“å†²ï¼ˆcreateFramebuffersï¼‰
     createFramebuffers();
 
-    // ´´½¨ÃüÁî³Ø£¨createCommandPool£©
+    // åˆ›å»ºå‘½ä»¤æ± ï¼ˆcreateCommandPoolï¼‰
     createCommandPool();
 
-    // ·ÖÅäÃüÁî»º³åÇø
+    // åˆ†é…å‘½ä»¤ç¼“å†²åŒº
     createCommandBuffers();
 
-    // ´´½¨ÓÃÓÚÖ¡Í¬²½µÄĞÅºÅÁ¿ºÍÕ¤À¸
+    // åˆ›å»ºç”¨äºå¸§åŒæ­¥çš„ä¿¡å·é‡å’Œæ …æ 
     createSyncObjects();
 }
 
@@ -146,89 +148,91 @@ void TriangleFunc::mainLoop()
         drawFrame();
     }
 
-    // µÈ´ı GPU Íê³ÉËùÓĞ²Ù×÷
+    // ç­‰å¾… GPU å®Œæˆæ‰€æœ‰æ“ä½œ
     vkDeviceWaitIdle(_device);
 }
 
 void TriangleFunc::cleanup()
 {
+    // æ¸…ç†äº¤æ¢é“¾ç›¸å…³çš„èµ„æºï¼ŒåŒ…æ‹¬å¸§ç¼“å†²ã€å›¾åƒè§†å›¾å’Œäº¤æ¢é“¾æœ¬èº«
     cleanupSwapChain();
 
-    // Ïú»ÙÍ¼ĞÎ¹ÜÏß
+    // é”€æ¯å›¾å½¢ç®¡çº¿å¯¹è±¡
     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
-
-    // Ïú»Ù¹ÜÏß²¼¾Ö£¨°ó¶¨×ÊÔ´²¼¾Ö£©
+    // é”€æ¯ç®¡çº¿å¸ƒå±€å¯¹è±¡
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 
-    // Ïú»ÙäÖÈ¾Í¨µÀ£¨Render Pass£©
+    // é”€æ¯æ¸²æŸ“é€šé“ï¼ˆRender Passï¼‰
     vkDestroyRenderPass(_device, _renderPass, nullptr);
 
+    // é”€æ¯ç”¨äºåŒæ­¥çš„ä¿¡å·é‡å’Œæ …æ èµ„æº
     for (size_t i = 0; i < _MAX_FRAMES_IN_FLIGHT; i++) {
-        // Ïú»ÙäÖÈ¾Íê³ÉĞÅºÅÁ¿£¬ÊÍ·Å×ÊÔ´
-        vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
-
-        // Ïú»ÙÍ¬²½ĞÅºÅÁ¿£¬ÊÍ·Å×ÊÔ´
-        vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
-
-        // Ïú»ÙÖ¡Íê³ÉÕ¤À¸£¬ÊÍ·Å×ÊÔ´
-        vkDestroyFence(_device, _inFlightFences[i], nullptr);
+        vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);    // æ¸²æŸ“å®Œæˆä¿¡å·é‡
+        vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);    // å›¾åƒå¯ç”¨ä¿¡å·é‡
+        vkDestroyFence(_device, _inFlightFences[i], nullptr);                  // åŒæ­¥å¸§å®Œæˆæ …æ 
     }
 
-    // Ïú»ÙÃüÁî³Ø£¬ÊÍ·ÅËùÓĞÓÉÃüÁî³Ø·ÖÅäµÄÃüÁî»º³åÇø
+    // é”€æ¯ ImGui ä½¿ç”¨çš„æè¿°ç¬¦æ± 
+    vkDestroyDescriptorPool(_device, _imguiDescriptorPool, nullptr);
+
+    // é‡Šæ”¾æ‰€æœ‰å‘½ä»¤ç¼“å†²
+    vkFreeCommandBuffers(_device, _commandPool, static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+
+    // é”€æ¯å‘½ä»¤æ± ï¼ŒåŒæ—¶ä¼šé‡Šæ”¾æ‰€æœ‰å‘½ä»¤ç¼“å†²åŒº
     vkDestroyCommandPool(_device, _commandPool, nullptr);
 
-    // Ïú»ÙÂß¼­Éè±¸
+    // é”€æ¯é€»è¾‘è®¾å¤‡ï¼Œé‡Šæ”¾æ‰€æœ‰é€šè¿‡è¯¥è®¾å¤‡åˆ›å»ºçš„ Vulkan å¯¹è±¡
     vkDestroyDevice(_device, nullptr);
 
-    // Èç¹ûÆôÓÃÁËµ÷ÊÔ²ã£¬ÔòÏú»Ùµ÷ÊÔ»Øµ÷¾ä±ú
+    // å¦‚æœå¯ç”¨äº†éªŒè¯å±‚ï¼Œåˆ™é”€æ¯è°ƒè¯•å·¥å…·å›è°ƒ
     if (_enableValidationLayers) {
         destroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
     }
 
-    // Ïú»ÙÓë´°¿ÚÏµÍ³½»»¥µÄ±íÃæ
+    // é”€æ¯ä¸çª—å£ç³»ç»Ÿäº¤äº’çš„è¡¨é¢å¯¹è±¡
     vkDestroySurfaceKHR(_instance, _surface, nullptr);
-
-    // Ïú»Ù Vulkan ÊµÀı
+    // é”€æ¯ Vulkan å®ä¾‹ï¼Œé‡Šæ”¾ Vulkan è¿è¡Œæ—¶èµ„æº
     vkDestroyInstance(_instance, nullptr);
 
-    // Ïú»Ù GLFW ´´½¨µÄ´°¿Ú£¬²¢ÊÍ·Å GLFW ËùÕ¼×ÊÔ´
+    // é”€æ¯ GLFW çª—å£ï¼Œé‡Šæ”¾çª—å£èµ„æº
     glfwDestroyWindow(_window);
 
+    // ç»ˆæ­¢ GLFW åº“ï¼Œæ¸…ç† GLFW åˆ†é…çš„å…¨å±€èµ„æº
     glfwTerminate();
 }
 
 void TriangleFunc::createInstance()
 {
-    PrintVec("Ö§³ÖµÄ Vulkan ÊµÀıÀ©Õ¹:", checkValidationInstanceExtensions());
+    PrintVec("æ”¯æŒçš„ Vulkan å®ä¾‹æ‰©å±•:", checkValidationInstanceExtensions());
 
-    //Æô¶¯ÑéÖ¤²ã
+    // å¯åŠ¨éªŒè¯å±‚
     if (_enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("ÇëÇóÁËÑéÖ¤²ã£¬µ«²»¿ÉÓÃ!");
+        throw std::runtime_error("è¯·æ±‚äº†éªŒè¯å±‚ï¼Œä½†ä¸å¯ç”¨!");
     }
 
-    // vk³ÌĞò´´½¨ĞÅÏ¢½á¹¹
+    // vkç¨‹åºåˆ›å»ºä¿¡æ¯ç»“æ„
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "ÄãºÃ,Ğ¡Èı½Ç";
+    appInfo.pApplicationName = "ä½ å¥½,å°ä¸‰è§’";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    // vk´´½¨ÊµÀıĞÅÏ¢½á¹¹
+    // vkåˆ›å»ºå®ä¾‹ä¿¡æ¯ç»“æ„
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    //ÉèÖÃ´´½¨ÊµÀıĞèÒªÆôÓÃµÄÀ©Õ¹(ÀıÈç´°¿ÚÀ©Õ¹)
+    // è®¾ç½®åˆ›å»ºå®ä¾‹éœ€è¦å¯ç”¨çš„æ‰©å±•(ä¾‹å¦‚çª—å£æ‰©å±•)
     auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    //ÑéÖ¤²ã¿ªÆôÊ±×¢Èëµ÷ÊÔ»Øµ÷ĞÅÏ¢
+    // éªŒè¯å±‚å¼€å¯æ—¶æ³¨å…¥è°ƒè¯•å›è°ƒä¿¡æ¯
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     if (_enableValidationLayers) {
-        //ÉèÖÃ´´½¨ÊµÀıĞÅÏ¢ÑÔÑéÖ¤²ã(Ö»ÓĞÔÚDebugÄ£Ê½ÏÂ)
+        // è®¾ç½®åˆ›å»ºå®ä¾‹ä¿¡æ¯è¨€éªŒè¯å±‚(åªæœ‰åœ¨Debugæ¨¡å¼ä¸‹)
         createInfo.enabledLayerCount = static_cast<uint32_t>(_validationLayers.size());
         createInfo.ppEnabledLayerNames = _validationLayers.data();
 
@@ -239,9 +243,9 @@ void TriangleFunc::createInstance()
         createInfo.pNext = nullptr;
     }
 
-    //´´½¨vulkanÊµÀı(2:Ö¸Ïò×Ô¶¨Òå·ÖÅäÆ÷»Øµ÷µÄÖ¸Õë,nullptr¼´¿É)
+    // åˆ›å»ºvulkanå®ä¾‹(2:æŒ‡å‘è‡ªå®šä¹‰åˆ†é…å™¨å›è°ƒçš„æŒ‡é’ˆ,nullptrå³å¯)
     if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
-        throw std::runtime_error("´´½¨vkÊµÀıÊ§°Ü!");
+        throw std::runtime_error("åˆ›å»ºvkå®ä¾‹å¤±è´¥!");
     }
 }
 
@@ -251,30 +255,30 @@ void TriangleFunc::setupDebugMessenger()
         return;
     }
 
-    //µ÷ÊÔ»Øµ÷½á¹¹ĞÅÏ¢£¨Debug Messenger£©
+    // è°ƒè¯•å›è°ƒç»“æ„ä¿¡æ¯ï¼ˆDebug Messengerï¼‰
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
-    //ÉèÖÃµ÷ÊÔÏûÏ¢´«µİÆ÷
+    // è®¾ç½®è°ƒè¯•æ¶ˆæ¯ä¼ é€’å™¨
     if (createDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
-        throw std::runtime_error("ÎŞ·¨ÉèÖÃµ÷ÊÔÏûÏ¢´«µİÆ÷!");
+        throw std::runtime_error("æ— æ³•è®¾ç½®è°ƒè¯•æ¶ˆæ¯ä¼ é€’å™¨!");
     }
 }
 
 void TriangleFunc::pickPhysicalDevice()
 {
-    //»ñÈ¡ÏµÍ³ÎïÀíÉè±¸ÊıÁ¿(GPU)
+    // è·å–ç³»ç»Ÿç‰©ç†è®¾å¤‡æ•°é‡(GPU)
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
     if (deviceCount == 0) {
-        throw std::runtime_error("Î´ÄÜÕÒµ½Ö§³ÖVulkanµÄGPU!");
+        throw std::runtime_error("æœªèƒ½æ‰¾åˆ°æ”¯æŒVulkançš„GPU!");
     }
 
-    //»ñÈ¡ÏµÍ³ÎïÀíÉè±¸ĞÅÏ¢
+    // è·å–ç³»ç»Ÿç‰©ç†è®¾å¤‡ä¿¡æ¯
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
-    // ºòÑ¡Éè±¸¼°µÃ·Ö£¬°´¸ß·ÖÓÅÏÈÅÅĞò
+    // å€™é€‰è®¾å¤‡åŠå¾—åˆ†ï¼ŒæŒ‰é«˜åˆ†ä¼˜å…ˆæ’åº
     std::multimap<int, VkPhysicalDevice, std::greater<int>> candidates;
     for (const auto &device : devices) {
         int score = rateDeviceSuitability(device);
@@ -283,30 +287,30 @@ void TriangleFunc::pickPhysicalDevice()
         }
     }
 
-    // Ñ¡ÔñµÃ·Ö×î¸ßµÄÉè±¸×÷ÎªÄ¿±ê GPU
+    // é€‰æ‹©å¾—åˆ†æœ€é«˜çš„è®¾å¤‡ä½œä¸ºç›®æ ‡ GPU
     if (!candidates.empty()) {
         _physicalDevice = candidates.begin()->second;
     } else {
-        throw std::runtime_error("Î´ÄÜÕÒµ½·ûºÏÒªÇóµÄ Vulkan ÎïÀíÉè±¸£¡");
+        throw std::runtime_error("æœªèƒ½æ‰¾åˆ°ç¬¦åˆè¦æ±‚çš„ Vulkan ç‰©ç†è®¾å¤‡ï¼");
     }
 }
 
 void TriangleFunc::createLogicalDevice()
 {
-    // ²éÕÒµ±Ç°ÎïÀíÉè±¸Ö§³ÖµÄ¶ÓÁĞ×å£¨Í¼ĞÎ + ³ÊÏÖ£©
+    // æŸ¥æ‰¾å½“å‰ç‰©ç†è®¾å¤‡æ”¯æŒçš„é˜Ÿåˆ—æ—ï¼ˆå›¾å½¢ + å‘ˆç°ï¼‰
     QueueFamilyIndices indices = findQueueFamilies(_physicalDevice);
 
-    // ImguiÊ¹ÓÃ
+    // Imguiä½¿ç”¨
     _graphicsQueueFamily = indices.graphicsFamily.value();
 
-    // Ê¹ÓÃ std::set È¥ÖØ£¬È·±£²»»áÖØ¸´´´½¨ÏàÍ¬¶ÓÁĞ×å
+    // ä½¿ç”¨ std::set å»é‡ï¼Œç¡®ä¿ä¸ä¼šé‡å¤åˆ›å»ºç›¸åŒé˜Ÿåˆ—æ—
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
-    // ÎªÃ¿¸öÎ¨Ò»¶ÓÁĞ×å´´½¨Ò»¸ö VkDeviceQueueCreateInfo
+    // ä¸ºæ¯ä¸ªå”¯ä¸€é˜Ÿåˆ—æ—åˆ›å»ºä¸€ä¸ª VkDeviceQueueCreateInfo
     float queuePriority = 1.0f;
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     for (uint32_t queueFamily : uniqueQueueFamilies) {
-        //Âß¼­¶ÓÁĞ´´½¨ĞÅÏ¢
+        // é€»è¾‘é˜Ÿåˆ—åˆ›å»ºä¿¡æ¯
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -315,21 +319,21 @@ void TriangleFunc::createLogicalDevice()
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
-    // ÉèÖÃÒªÆôÓÃµÄÎïÀíÉè±¸ÌØĞÔ£¨´Ë´¦ÔİÎ´ÆôÓÃÈÎºÎÌØĞÔ£©
+    // è®¾ç½®è¦å¯ç”¨çš„ç‰©ç†è®¾å¤‡ç‰¹æ€§ï¼ˆæ­¤å¤„æš‚æœªå¯ç”¨ä»»ä½•ç‰¹æ€§ï¼‰
     VkPhysicalDeviceFeatures deviceFeatures{};
 
-    // Âß¼­Éè±¸´´½¨ĞÅÏ¢
+    // é€»è¾‘è®¾å¤‡åˆ›å»ºä¿¡æ¯
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    // ÆôÓÃÉè±¸À©Õ¹£¨Èç swapchain ¿ÉÔÚ´ËÆôÓÃ£©
+    // å¯ç”¨è®¾å¤‡æ‰©å±•ï¼ˆå¦‚ swapchain å¯åœ¨æ­¤å¯ç”¨ï¼‰
     createInfo.enabledExtensionCount = static_cast<uint32_t>(_deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = _deviceExtensions.data();
 
-    // ÈçÆôÓÃÁËÑéÖ¤²ã£¬Ôò¸½¼Ó²ãÃû³Æ
+    // å¦‚å¯ç”¨äº†éªŒè¯å±‚ï¼Œåˆ™é™„åŠ å±‚åç§°
     if (_enableValidationLayers) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(_validationLayers.size());
         createInfo.ppEnabledLayerNames = _validationLayers.data();
@@ -338,46 +342,46 @@ void TriangleFunc::createLogicalDevice()
     }
 
     if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
-        throw std::runtime_error("Î´ÄÜ´´½¨Âß¼­Éè±¸!");
+        throw std::runtime_error("æœªèƒ½åˆ›å»ºé€»è¾‘è®¾å¤‡!");
     }
 
-    // »ñÈ¡Í¼ĞÎ¶ÓÁĞ¾ä±ú
+    // è·å–å›¾å½¢é˜Ÿåˆ—å¥æŸ„
     vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
 
-    // »ñÈ¡³ÊÏÖ¶ÓÁĞ¾ä±ú
+    // è·å–å‘ˆç°é˜Ÿåˆ—å¥æŸ„
     vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
 }
 
 void TriangleFunc::createSurface()
 {
     if (glfwCreateWindowSurface(_instance, _window, nullptr, &_surface) != VK_SUCCESS) {
-        throw std::runtime_error("Î´ÄÜ´´½¨´°¿Ú±íÃæ!");
+        throw std::runtime_error("æœªèƒ½åˆ›å»ºçª—å£è¡¨é¢!");
     }
 }
 
 void TriangleFunc::createSwapChain()
 {
-    // ²éÑ¯½»»»Á´Ö§³ÖÏêÇé
+    // æŸ¥è¯¢äº¤æ¢é“¾æ”¯æŒè¯¦æƒ…
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(_physicalDevice);
 
-    // Ñ¡Ôñ±íÃæ¸ñÊ½£¨ÑÕÉ«¸ñÊ½ + É«²Ê¿Õ¼ä£©
+    // é€‰æ‹©è¡¨é¢æ ¼å¼ï¼ˆé¢œè‰²æ ¼å¼ + è‰²å½©ç©ºé—´ï¼‰
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 
-    // Ñ¡Ôñ³ÊÏÖÄ£Ê½£¨Èç FIFO¡¢MAILBOX£©
+    // é€‰æ‹©å‘ˆç°æ¨¡å¼ï¼ˆå¦‚ FIFOã€MAILBOXï¼‰
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 
-    // Ñ¡Ôñ½»»»Á´Í¼Ïñ³ß´ç£¨·Ö±æÂÊ£©
+    // é€‰æ‹©äº¤æ¢é“¾å›¾åƒå°ºå¯¸ï¼ˆåˆ†è¾¨ç‡ï¼‰
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-    // ÆÚÍûµÄÍ¼ÏñÊıÁ¿£¨ÖÁÉÙÎª×îĞ¡ÊıÁ¿ + 1£¬ÌáÉıĞÔÄÜ£©
+    // æœŸæœ›çš„å›¾åƒæ•°é‡ï¼ˆè‡³å°‘ä¸ºæœ€å°æ•°é‡ + 1ï¼Œæå‡æ€§èƒ½ï¼‰
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
-    // Èç¹û×î´óÍ¼ÏñÊıÁ¿ÓĞÏŞÖÆ£¬È·±£²»³¬¹ı¸ÃÏŞÖÆ
+    // å¦‚æœæœ€å¤§å›¾åƒæ•°é‡æœ‰é™åˆ¶ï¼Œç¡®ä¿ä¸è¶…è¿‡è¯¥é™åˆ¶
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
 
-    // ÌîĞ´½»»»Á´´´½¨ĞÅÏ¢½á¹¹Ìå
+    // å¡«å†™äº¤æ¢é“¾åˆ›å»ºä¿¡æ¯ç»“æ„ä½“
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = _surface;
@@ -386,76 +390,76 @@ void TriangleFunc::createSwapChain()
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = extent;
-    createInfo.imageArrayLayers = 1;    // Ò»°ãÎª1£¬³ı·ÇÊÇÁ¢Ìå»ò¶àÊÓÍ¼äÖÈ¾
+    createInfo.imageArrayLayers = 1;    // ä¸€èˆ¬ä¸º1ï¼Œé™¤éæ˜¯ç«‹ä½“æˆ–å¤šè§†å›¾æ¸²æŸ“
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    // »ñÈ¡Í¼ĞÎºÍ³ÊÏÖ¶ÓÁĞ×åË÷Òı
+    // è·å–å›¾å½¢å’Œå‘ˆç°é˜Ÿåˆ—æ—ç´¢å¼•
     QueueFamilyIndices indices = findQueueFamilies(_physicalDevice);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
-    // Èç¹ûÍ¼ĞÎ¶ÓÁĞ×åºÍ³ÊÏÖ¶ÓÁĞ×å²»Í¬£¬ÉèÖÃ¹²ÏíÄ£Ê½Îª²¢·¢
+    // å¦‚æœå›¾å½¢é˜Ÿåˆ—æ—å’Œå‘ˆç°é˜Ÿåˆ—æ—ä¸åŒï¼Œè®¾ç½®å…±äº«æ¨¡å¼ä¸ºå¹¶å‘
     if (indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
     } else {
-        // Í¬Ò»¶ÓÁĞ×åÔòÊ¹ÓÃ¶ÀÕ¼Ä£Ê½£¨¸ü¸ßĞ§£©
+        // åŒä¸€é˜Ÿåˆ—æ—åˆ™ä½¿ç”¨ç‹¬å æ¨¡å¼ï¼ˆæ›´é«˜æ•ˆï¼‰
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0;        // ºöÂÔ
-        createInfo.pQueueFamilyIndices = nullptr;    // ºöÂÔ
+        createInfo.queueFamilyIndexCount = 0;        // å¿½ç•¥
+        createInfo.pQueueFamilyIndices = nullptr;    // å¿½ç•¥
     }
 
-    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;    // Í¼Ïñ±ä»»£¨Ò»°ãÎŞ±ä»»£©
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;               // ²»Í¸Ã÷µÄ alpha ºÏ³É
-    createInfo.presentMode = presentMode;                                        // Ñ¡ÔñµÄ³ÊÏÖÄ£Ê½
-    createInfo.clipped = VK_TRUE;                                                // ÌŞ³ı²»¿É¼ûÏñËØ£¬ÌáÉıĞÔÄÜ
+    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;    // å›¾åƒå˜æ¢ï¼ˆä¸€èˆ¬æ— å˜æ¢ï¼‰
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;               // ä¸é€æ˜çš„ alpha åˆæˆ
+    createInfo.presentMode = presentMode;                                        // é€‰æ‹©çš„å‘ˆç°æ¨¡å¼
+    createInfo.clipped = VK_TRUE;                                                // å‰”é™¤ä¸å¯è§åƒç´ ï¼Œæå‡æ€§èƒ½
 
-    createInfo.oldSwapchain = VK_NULL_HANDLE;    // ¾É½»»»Á´£¨´°¿Ú´óĞ¡±ä¸üÊ±ÓÃ£©
+    createInfo.oldSwapchain = VK_NULL_HANDLE;    // æ—§äº¤æ¢é“¾ï¼ˆçª—å£å¤§å°å˜æ›´æ—¶ç”¨ï¼‰
 
-    // ´´½¨½»»»Á´
+    // åˆ›å»ºäº¤æ¢é“¾
     if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    // »ñÈ¡½»»»Á´Í¼Ïñ¾ä±úÊıÁ¿
+    // è·å–äº¤æ¢é“¾å›¾åƒå¥æŸ„æ•°é‡
     vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, nullptr);
     _swapChainImages.resize(imageCount);
 
-    // »ñÈ¡½»»»Á´Í¼Ïñ¾ä±ú
+    // è·å–äº¤æ¢é“¾å›¾åƒå¥æŸ„
     vkGetSwapchainImagesKHR(_device, _swapChain, &imageCount, _swapChainImages.data());
 
-    // ¼ÇÂ¼½»»»Á´Í¼Ïñ¸ñÊ½ºÍ³ß´ç£¬ºóĞø´´½¨Í¼ÏñÊÓÍ¼Ê±Ê¹ÓÃ
+    // è®°å½•äº¤æ¢é“¾å›¾åƒæ ¼å¼å’Œå°ºå¯¸ï¼Œåç»­åˆ›å»ºå›¾åƒè§†å›¾æ—¶ä½¿ç”¨
     _swapChainImageFormat = surfaceFormat.format;
     _swapChainExtent = extent;
 }
 
 void TriangleFunc::createImageViews()
 {
-    // ¸ù¾İÍ¼ÏñÊıÁ¿·ÖÅäÍ¼ÏñÊÓÍ¼Êı×é
+    // æ ¹æ®å›¾åƒæ•°é‡åˆ†é…å›¾åƒè§†å›¾æ•°ç»„
     _swapChainImageViews.resize(_swapChainImages.size());
 
-    // ÎªÃ¿¸ö½»»»Á´Í¼Ïñ´´½¨Í¼ÏñÊÓÍ¼
+    // ä¸ºæ¯ä¸ªäº¤æ¢é“¾å›¾åƒåˆ›å»ºå›¾åƒè§†å›¾
     for (size_t i = 0; i < _swapChainImages.size(); i++) {
         VkImageViewCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = _swapChainImages[i];         // Ö¸¶¨Í¼Ïñ×ÊÔ´
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;    // 2D ÊÓÍ¼
-        createInfo.format = _swapChainImageFormat;      // Í¼Ïñ¸ñÊ½±ØĞëÓë½»»»Á´Ò»ÖÂ
+        createInfo.image = _swapChainImages[i];         // æŒ‡å®šå›¾åƒèµ„æº
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;    // 2D è§†å›¾
+        createInfo.format = _swapChainImageFormat;      // å›¾åƒæ ¼å¼å¿…é¡»ä¸äº¤æ¢é“¾ä¸€è‡´
 
-        // Í¨µÀÖØÓ³Éä£¨´Ë´¦ÎªÄ¬ÈÏ£º±£³Ö²»±ä£©
+        // é€šé“é‡æ˜ å°„ï¼ˆæ­¤å¤„ä¸ºé»˜è®¤ï¼šä¿æŒä¸å˜ï¼‰
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-        // Í¼Ïñ×Ó×ÊÔ´·¶Î§£¨ÕâÀïÖ»Ê¹ÓÃÑÕÉ«£¬µ¥²ã£¬·Ç mipmap£©
+        // å›¾åƒå­èµ„æºèŒƒå›´ï¼ˆè¿™é‡Œåªä½¿ç”¨é¢œè‰²ï¼Œå•å±‚ï¼Œé mipmapï¼‰
         createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         createInfo.subresourceRange.baseMipLevel = 0;
         createInfo.subresourceRange.levelCount = 1;
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        // ´´½¨Í¼ÏñÊÓÍ¼²¢´æ´¢
+        // åˆ›å»ºå›¾åƒè§†å›¾å¹¶å­˜å‚¨
         if (vkCreateImageView(_device, &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image views!");
         }
@@ -464,20 +468,20 @@ void TriangleFunc::createImageViews()
 
 void TriangleFunc::createGraphicsPipeline()
 {
-    // === 1. ¼ÓÔØ shader ×Ö½ÚÂëÎÄ¼ş ===
+    // === 1. åŠ è½½ shader å­—èŠ‚ç æ–‡ä»¶ ===
     auto vertShaderCode = readFile("spv/vert.spv");
     auto fragShaderCode = readFile("spv/frag.spv");
 
-    // === 2. ´´½¨ shader Ä£¿é ===
+    // === 2. åˆ›å»º shader æ¨¡å— ===
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
-    // === 3. ÅäÖÃ shader ½×¶Î ===
+    // === 3. é…ç½® shader é˜¶æ®µ ===
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "main";    // ×ÅÉ«Æ÷Èë¿Úº¯Êı
+    vertShaderStageInfo.pName = "main";    // ç€è‰²å™¨å…¥å£å‡½æ•°
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -487,25 +491,25 @@ void TriangleFunc::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-    // === 4. ¶¥µãÊäÈë½×¶Î£¨µ±Ç°ÎŞ¶¥µãÊı¾İ£©===
+    // === 4. é¡¶ç‚¹è¾“å…¥é˜¶æ®µï¼ˆå½“å‰æ— é¡¶ç‚¹æ•°æ®ï¼‰===
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 0;
     vertexInputInfo.vertexAttributeDescriptionCount = 0;
 
-    // === 5. ÊäÈë×°Åä£¨×é×°ÎªÈı½ÇĞÎ£©===
+    // === 5. è¾“å…¥è£…é…ï¼ˆç»„è£…ä¸ºä¸‰è§’å½¢ï¼‰===
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    // === 6. ÊÓ¿ÚÓë²Ã¼ôÉèÖÃ£¨²ÉÓÃ¶¯Ì¬ÉèÖÃ£©===
+    // === 6. è§†å£ä¸è£å‰ªè®¾ç½®ï¼ˆé‡‡ç”¨åŠ¨æ€è®¾ç½®ï¼‰===
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
 
-    // === 7. ¹âÕ¤»¯½×¶Î ===
+    // === 7. å…‰æ …åŒ–é˜¶æ®µ ===
     VkPipelineRasterizationStateCreateInfo rasterizer{};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
@@ -516,13 +520,13 @@ void TriangleFunc::createGraphicsPipeline()
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
-    // === 8. ¶àÖØ²ÉÑù£¨¹Ø±Õ£©===
+    // === 8. å¤šé‡é‡‡æ ·ï¼ˆå…³é—­ï¼‰===
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    // === 9. ÑÕÉ«»ìºÏ£¨Ö±½ÓÊä³öÑÕÉ«£¬²»×ö»ìºÏ£©===
+    // === 9. é¢œè‰²æ··åˆï¼ˆç›´æ¥è¾“å‡ºé¢œè‰²ï¼Œä¸åšæ··åˆï¼‰===
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
     colorBlendAttachment.colorWriteMask =
         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -535,7 +539,7 @@ void TriangleFunc::createGraphicsPipeline()
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
-    // === 10. ¶¯Ì¬×´Ì¬£¨ÊÓ¿Ú/¼ô²ÃÓÉ command buffer ÉèÖÃ£©===
+    // === 10. åŠ¨æ€çŠ¶æ€ï¼ˆè§†å£/å‰ªè£ç”± command buffer è®¾ç½®ï¼‰===
     std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -543,7 +547,7 @@ void TriangleFunc::createGraphicsPipeline()
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
-    // === 11. ´´½¨¹ÜÏß²¼¾Ö£¨ÎŞ descriptor set£©===
+    // === 11. åˆ›å»ºç®¡çº¿å¸ƒå±€ï¼ˆæ—  descriptor setï¼‰===
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 0;
@@ -553,7 +557,7 @@ void TriangleFunc::createGraphicsPipeline()
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
-    // === 12. ×îÖÕ×éºÏÍ¼ĞÎ¹ÜÏßËùÓĞ½á¹¹Ìå ===
+    // === 12. æœ€ç»ˆç»„åˆå›¾å½¢ç®¡çº¿æ‰€æœ‰ç»“æ„ä½“ ===
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -575,36 +579,36 @@ void TriangleFunc::createGraphicsPipeline()
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    // === 13. Ïú»ÙÁÙÊ±×ÅÉ«Æ÷Ä£¿é£¨¹ÜÏßÒÑ¸´ÖÆÆäÄÚÈİ£©===
+    // === 13. é”€æ¯ä¸´æ—¶ç€è‰²å™¨æ¨¡å—ï¼ˆç®¡çº¿å·²å¤åˆ¶å…¶å†…å®¹ï¼‰===
     vkDestroyShaderModule(_device, fragShaderModule, nullptr);
     vkDestroyShaderModule(_device, vertShaderModule, nullptr);
 }
 
 void TriangleFunc::createRenderPass()
 {
-    // 1. ¸½¼şÃèÊö£¨½»»»Á´Í¼Ïñ£©
+    // 1. é™„ä»¶æè¿°ï¼ˆäº¤æ¢é“¾å›¾åƒï¼‰
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = _swapChainImageFormat;                     // Óë½»»»Á´¸ñÊ½Ò»ÖÂ
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;                    // ÎŞ¶àÖØ²ÉÑù
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // äÖÈ¾Ç°Çå³ıÑÕÉ«
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // äÖÈ¾ºó±£ÁôÄÚÈİ£¨ÓÃÓÚÏÔÊ¾£©
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // ²»Ê¹ÓÃ stencil
+    colorAttachment.format = _swapChainImageFormat;                     // ä¸äº¤æ¢é“¾æ ¼å¼ä¸€è‡´
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;                    // æ— å¤šé‡é‡‡æ ·
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;               // æ¸²æŸ“å‰æ¸…é™¤é¢œè‰²
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;             // æ¸²æŸ“åä¿ç•™å†…å®¹ï¼ˆç”¨äºæ˜¾ç¤ºï¼‰
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;    // ä¸ä½¿ç”¨ stencil
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;        // ¿ªÊ¼Ê±²»¹ØĞÄÍ¼ÏñÄÚÈİ
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;    // ³ÊÏÖµ½ÆÁÄ»
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;        // å¼€å§‹æ—¶ä¸å…³å¿ƒå›¾åƒå†…å®¹
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;    // å‘ˆç°åˆ°å±å¹•
 
-    // 2. ¸½¼şÒıÓÃ£¨ÓÃÓÚ subpass£©
+    // 2. é™„ä»¶å¼•ç”¨ï¼ˆç”¨äº subpassï¼‰
     VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;    // Ö¸ÏòÉÏÃæÄÇ¸ö¸½¼ş
+    colorAttachmentRef.attachment = 0;    // æŒ‡å‘ä¸Šé¢é‚£ä¸ªé™„ä»¶
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    // 3. ×ÓÍ¨µÀÅäÖÃ£¨°ó¶¨Í¼ĞÎ¹ÜÏß£¬Ğ´ÈëÑÕÉ«¸½¼ş£©
+    // 3. å­é€šé“é…ç½®ï¼ˆç»‘å®šå›¾å½¢ç®¡çº¿ï¼Œå†™å…¥é¢œè‰²é™„ä»¶ï¼‰
     VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;    // Í¼ĞÎ¹ÜÏß
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;    // å›¾å½¢ç®¡çº¿
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
-    // 4. äÖÈ¾Í¨µÀ´´½¨ĞÅÏ¢
+    // 4. æ¸²æŸ“é€šé“åˆ›å»ºä¿¡æ¯
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = 1;
@@ -612,7 +616,7 @@ void TriangleFunc::createRenderPass()
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    // 5. ´´½¨äÖÈ¾Í¨µÀ¶ÔÏó
+    // 5. åˆ›å»ºæ¸²æŸ“é€šé“å¯¹è±¡
     if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
         throw std::runtime_error("failed to create render pass!");
     }
@@ -620,23 +624,23 @@ void TriangleFunc::createRenderPass()
 
 void TriangleFunc::createFramebuffers()
 {
-    // µ÷ÕûÖ¡»º³åÈİÆ÷´óĞ¡£¬ÓëÍ¼ÏñÊÓÍ¼ÊıÁ¿Ò»ÖÂ
+    // è°ƒæ•´å¸§ç¼“å†²å®¹å™¨å¤§å°ï¼Œä¸å›¾åƒè§†å›¾æ•°é‡ä¸€è‡´
     _swapChainFramebuffers.resize(_swapChainImageViews.size());
 
     for (size_t i = 0; i < _swapChainImageViews.size(); i++) {
-        // Ã¿¸ö framebuffer µÄ¸½¼ş½ö°üº¬Ò»¸öÑÕÉ«Í¼ÏñÊÓÍ¼
+        // æ¯ä¸ª framebuffer çš„é™„ä»¶ä»…åŒ…å«ä¸€ä¸ªé¢œè‰²å›¾åƒè§†å›¾
         VkImageView attachments[] = {_swapChainImageViews[i]};
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = _renderPass;    // Ê¹ÓÃÍ¬Ò»¸öäÖÈ¾Í¨µÀ
-        framebufferInfo.attachmentCount = 1;         // ½ö°ó¶¨Ò»¸öÍ¼ÏñÊÓÍ¼
+        framebufferInfo.renderPass = _renderPass;    // ä½¿ç”¨åŒä¸€ä¸ªæ¸²æŸ“é€šé“
+        framebufferInfo.attachmentCount = 1;         // ä»…ç»‘å®šä¸€ä¸ªå›¾åƒè§†å›¾
         framebufferInfo.pAttachments = attachments;
         framebufferInfo.width = _swapChainExtent.width;
         framebufferInfo.height = _swapChainExtent.height;
-        framebufferInfo.layers = 1;    // ²»Ê¹ÓÃÁ¢ÌåÍ¼²ã»òÊı×é²ã
+        framebufferInfo.layers = 1;    // ä¸ä½¿ç”¨ç«‹ä½“å›¾å±‚æˆ–æ•°ç»„å±‚
 
-        // ´´½¨ framebuffer ¶ÔÏó
+        // åˆ›å»º framebuffer å¯¹è±¡
         if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
@@ -645,16 +649,16 @@ void TriangleFunc::createFramebuffers()
 
 void TriangleFunc::createCommandPool()
 {
-    // ²éÕÒµ±Ç°ÎïÀíÉè±¸ÖĞÖ§³ÖÍ¼ĞÎÖ¸ÁîµÄ¶ÓÁĞ×åË÷Òı
+    // æŸ¥æ‰¾å½“å‰ç‰©ç†è®¾å¤‡ä¸­æ”¯æŒå›¾å½¢æŒ‡ä»¤çš„é˜Ÿåˆ—æ—ç´¢å¼•
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
 
-    // ÅäÖÃÃüÁî³Ø´´½¨ĞÅÏ¢
+    // é…ç½®å‘½ä»¤æ± åˆ›å»ºä¿¡æ¯
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;         // ÔÊĞíµ¥¶ÀÖØÖÃÃüÁî»º³å
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();    // °ó¶¨Í¼ĞÎ¶ÓÁĞ×å
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;         // å…è®¸å•ç‹¬é‡ç½®å‘½ä»¤ç¼“å†²
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();    // ç»‘å®šå›¾å½¢é˜Ÿåˆ—æ—
 
-    // ´´½¨ÃüÁî³Ø¶ÔÏó
+    // åˆ›å»ºå‘½ä»¤æ± å¯¹è±¡
     if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");
     }
@@ -662,16 +666,16 @@ void TriangleFunc::createCommandPool()
 
 void TriangleFunc::createCommandBuffers()
 {
-    // ÎªÃ¿Ö¡Ô¤ÁôÒ»¸öÃüÁî»º³å
+    // ä¸ºæ¯å¸§é¢„ç•™ä¸€ä¸ªå‘½ä»¤ç¼“å†²
     _commandBuffers.resize(_MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = _commandPool;                 // ´ÓÒÑ´´½¨µÄÃüÁî³ØÖĞ·ÖÅä
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;    // Ö÷ÃüÁî»º³å
+    allocInfo.commandPool = _commandPool;                 // ä»å·²åˆ›å»ºçš„å‘½ä»¤æ± ä¸­åˆ†é…
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;    // ä¸»å‘½ä»¤ç¼“å†²
     allocInfo.commandBufferCount = static_cast<uint32_t>(_commandBuffers.size());
 
-    // ·ÖÅäÃüÁî»º³å
+    // åˆ†é…å‘½ä»¤ç¼“å†²
     if (vkAllocateCommandBuffers(_device, &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
@@ -679,21 +683,21 @@ void TriangleFunc::createCommandBuffers()
 
 void TriangleFunc::createSyncObjects()
 {
-    // Ô¤·ÖÅäÃ¿Ö¡ËùĞèµÄÍ¬²½¶ÔÏó
+    // é¢„åˆ†é…æ¯å¸§æ‰€éœ€çš„åŒæ­¥å¯¹è±¡
     _imageAvailableSemaphores.resize(_MAX_FRAMES_IN_FLIGHT);
     _renderFinishedSemaphores.resize(_MAX_FRAMES_IN_FLIGHT);
     _inFlightFences.resize(_MAX_FRAMES_IN_FLIGHT);
 
-    // ´´½¨ĞÅºÅÁ¿µÄÅäÖÃĞÅÏ¢
+    // åˆ›å»ºä¿¡å·é‡çš„é…ç½®ä¿¡æ¯
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    // ´´½¨Õ¤À¸µÄÅäÖÃĞÅÏ¢£¨³õÊ¼»¯ÎªÒÑ´¥·¢£¬ÔÊĞíµÚÒ»´Îµ÷ÓÃ wait£©
+    // åˆ›å»ºæ …æ çš„é…ç½®ä¿¡æ¯ï¼ˆåˆå§‹åŒ–ä¸ºå·²è§¦å‘ï¼Œå…è®¸ç¬¬ä¸€æ¬¡è°ƒç”¨ waitï¼‰
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    // ÎªÃ¿Ò»Ö¡´´½¨Ò»×éÍ¬²½¶ÔÏó
+    // ä¸ºæ¯ä¸€å¸§åˆ›å»ºä¸€ç»„åŒæ­¥å¯¹è±¡
     for (size_t i = 0; i < _MAX_FRAMES_IN_FLIGHT; i++) {
         if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS
             || vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS
@@ -706,15 +710,15 @@ void TriangleFunc::createSyncObjects()
 
 void TriangleFunc::drawFrame()
 {
-    // µÈ´ıµ±Ç°Ö¡¶ÔÓ¦µÄ Fence£¬È·±£ÉÏÒ»Ö¡µÄäÖÈ¾Íê³É
+    // ç­‰å¾…å½“å‰å¸§å¯¹åº”çš„ Fenceï¼Œç¡®ä¿ä¸Šä¸€å¸§çš„æ¸²æŸ“å®Œæˆ
     vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
-    // »ñÈ¡ÏÂÒ»ÕÅ¿ÉÓÃÓÚäÖÈ¾µÄ½»»»Á´Í¼ÏñË÷Òı
+    // è·å–ä¸‹ä¸€å¼ å¯ç”¨äºæ¸²æŸ“çš„äº¤æ¢é“¾å›¾åƒç´¢å¼•
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame],
                                             VK_NULL_HANDLE, &imageIndex);
 
-    // Èç¹û½»»»Á´ÒÑ¹ıÆÚ£¨´°¿Ú´óĞ¡¸Ä±äµÈÔ­Òò£©£¬ÖØĞÂ´´½¨½»»»Á´²¢·µ»Ø
+    // å¦‚æœäº¤æ¢é“¾å·²è¿‡æœŸï¼ˆçª—å£å¤§å°æ”¹å˜ç­‰åŸå› ï¼‰ï¼Œé‡æ–°åˆ›å»ºäº¤æ¢é“¾å¹¶è¿”å›
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
         return;
@@ -722,16 +726,16 @@ void TriangleFunc::drawFrame()
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    // ÖØÖÃµ±Ç°Ö¡µÄ Fence£¬×¼±¸Ìá½»ĞÂµÄÃüÁî»º³å
+    // é‡ç½®å½“å‰å¸§çš„ Fenceï¼Œå‡†å¤‡æäº¤æ–°çš„å‘½ä»¤ç¼“å†²
     vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
 
-    // ÖØÖÃµ±Ç°Ö¡¶ÔÓ¦µÄÃüÁî»º³åÇø£¬×¼±¸¼ÇÂ¼ĞÂÃüÁî
+    // é‡ç½®å½“å‰å¸§å¯¹åº”çš„å‘½ä»¤ç¼“å†²åŒºï¼Œå‡†å¤‡è®°å½•æ–°å‘½ä»¤
     vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
 
-    // ¼ÇÂ¼ÃüÁî»º³åÇø£¬Ö¸¶¨µ±Ç°äÖÈ¾Ä¿±êÍ¼ÏñË÷Òı
+    // è®°å½•å‘½ä»¤ç¼“å†²åŒºï¼ŒæŒ‡å®šå½“å‰æ¸²æŸ“ç›®æ ‡å›¾åƒç´¢å¼•
     recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
 
-    // ×¼±¸Ìá½»ĞÅÏ¢£¬µÈ´ıÍ¼Ïñ¿ÉÓÃĞÅºÅÁ¿£¬±£Ö¤Í¼Ïñ¿ÉĞ´
+    // å‡†å¤‡æäº¤ä¿¡æ¯ï¼Œç­‰å¾…å›¾åƒå¯ç”¨ä¿¡å·é‡ï¼Œä¿è¯å›¾åƒå¯å†™
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     VkSemaphore waitSemaphores[] = {_imageAvailableSemaphores[_currentFrame]};
@@ -740,21 +744,21 @@ void TriangleFunc::drawFrame()
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
-    // Ö¸¶¨Ìá½»µÄÃüÁî»º³åÇø
+    // æŒ‡å®šæäº¤çš„å‘½ä»¤ç¼“å†²åŒº
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
 
-    // Ö¸¶¨ĞÅºÅÁ¿£¬ÔÚäÖÈ¾Íê³Éºó·¢³ö£¬Í¨Öª¿ÉÒÔ³ÊÏÖ
+    // æŒ‡å®šä¿¡å·é‡ï¼Œåœ¨æ¸²æŸ“å®Œæˆåå‘å‡ºï¼Œé€šçŸ¥å¯ä»¥å‘ˆç°
     VkSemaphore signalSemaphores[] = {_renderFinishedSemaphores[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    // Ìá½»ÃüÁî»º³åÇøµ½Í¼ĞÎ¶ÓÁĞ£¬²¢°ó¶¨ Fence ÒÔ±ãÍ¬²½
+    // æäº¤å‘½ä»¤ç¼“å†²åŒºåˆ°å›¾å½¢é˜Ÿåˆ—ï¼Œå¹¶ç»‘å®š Fence ä»¥ä¾¿åŒæ­¥
     if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
-    // ×¼±¸³ÊÏÖĞÅÏ¢£¬µÈ´ıäÖÈ¾Íê³ÉĞÅºÅÁ¿£¬±£Ö¤Í¼Ïñ¿É¶Á
+    // å‡†å¤‡å‘ˆç°ä¿¡æ¯ï¼Œç­‰å¾…æ¸²æŸ“å®Œæˆä¿¡å·é‡ï¼Œä¿è¯å›¾åƒå¯è¯»
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
@@ -764,10 +768,10 @@ void TriangleFunc::drawFrame()
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    // ½øĞĞÍ¼Ïñ³ÊÏÖ²Ù×÷
+    // è¿›è¡Œå›¾åƒå‘ˆç°æ“ä½œ
     result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
-    // ´¦Àí´°¿Ú´óĞ¡¸Ä±ä»ò½»»»Á´×ÓÓÅ»¯ÎÊÌâ£¬ÖØĞÂ´´½¨½»»»Á´
+    // å¤„ç†çª—å£å¤§å°æ”¹å˜æˆ–äº¤æ¢é“¾å­ä¼˜åŒ–é—®é¢˜ï¼Œé‡æ–°åˆ›å»ºäº¤æ¢é“¾
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
         _framebufferResized = false;
         recreateSwapChain();
@@ -775,25 +779,25 @@ void TriangleFunc::drawFrame()
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    // ¸üĞÂµ±Ç°Ö¡Ë÷Òı£¬Ñ­»·Ê¹ÓÃ¶àÖ¡Í¬²½»úÖÆ
+    // æ›´æ–°å½“å‰å¸§ç´¢å¼•ï¼Œå¾ªç¯ä½¿ç”¨å¤šå¸§åŒæ­¥æœºåˆ¶
     _currentFrame = (_currentFrame + 1) % _MAX_FRAMES_IN_FLIGHT;
 }
 
 std::vector<std::string> TriangleFunc::checkValidationInstanceExtensions()
 {
-    //»ñÈ¡ Vulkan ÊµÀıÀ©Õ¹ÊıÁ¿
+    // è·å– Vulkan å®ä¾‹æ‰©å±•æ•°é‡
     uint32_t extensionCount = 0;
     VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
     if (result != VK_SUCCESS) {
-        std::cerr << "»ñÈ¡Vulkan ÊµÀıÀ©Õ¹ÊıÁ¿´íÎó!" << std::endl;
+        std::cerr << "è·å–Vulkan å®ä¾‹æ‰©å±•æ•°é‡é”™è¯¯!" << std::endl;
         return {};
     }
 
-    //»ñÈ¡ Vulkan ÊµÀıÀ©Õ¹ĞÅÏ¢
+    // è·å– Vulkan å®ä¾‹æ‰©å±•ä¿¡æ¯
     std::vector<VkExtensionProperties> extensions(extensionCount);
     result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
     if (result != VK_SUCCESS) {
-        std::cerr << "»ñÈ¡Vulkan ÊµÀıÀ©Õ¹ĞÅÏ¢´íÎó!" << std::endl;
+        std::cerr << "è·å–Vulkan å®ä¾‹æ‰©å±•ä¿¡æ¯é”™è¯¯!" << std::endl;
         return {};
     }
 
@@ -822,23 +826,23 @@ bool TriangleFunc::isDeviceSuitable(VkPhysicalDevice device)
 
 bool TriangleFunc::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
-    // ²éÑ¯Éè±¸Ö§³ÖµÄÀ©Õ¹ÊıÁ¿
+    // æŸ¥è¯¢è®¾å¤‡æ”¯æŒçš„æ‰©å±•æ•°é‡
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-    // »ñÈ¡ËùÓĞ¿ÉÓÃÀ©Õ¹ÊôĞÔ
+    // è·å–æ‰€æœ‰å¯ç”¨æ‰©å±•å±æ€§
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    // ½«ËùĞèÀ©Õ¹×ªÎª¿É²Á³ıµÄ¼¯ºÏ
+    // å°†æ‰€éœ€æ‰©å±•è½¬ä¸ºå¯æ“¦é™¤çš„é›†åˆ
     std::set<std::string> requiredExtensions(_deviceExtensions.begin(), _deviceExtensions.end());
 
-    // ±éÀúËùÓĞ¿ÉÓÃÀ©Õ¹£¬ÌŞ³ıÒÑÂú×ãµÄÀ©Õ¹
+    // éå†æ‰€æœ‰å¯ç”¨æ‰©å±•ï¼Œå‰”é™¤å·²æ»¡è¶³çš„æ‰©å±•
     for (const auto &extension : availableExtensions) {
         requiredExtensions.erase(extension.extensionName);
     }
 
-    // Èç¹û¼¯ºÏÎª¿Õ£¬ËµÃ÷ËùÓĞÀ©Õ¹¶¼ÒÑÂú×ã
+    // å¦‚æœé›†åˆä¸ºç©ºï¼Œè¯´æ˜æ‰€æœ‰æ‰©å±•éƒ½å·²æ»¡è¶³
     return requiredExtensions.empty();
 }
 
@@ -848,25 +852,25 @@ int TriangleFunc::rateDeviceSuitability(VkPhysicalDevice device)
         return 0;
     }
 
-    //»ñÈ¡Ö¸¶¨ÎïÀíÉè±¸µÄ ÊôĞÔ£¬Ìî³ä VkPhysicalDeviceProperties ½á¹¹Ìå
+    // è·å–æŒ‡å®šç‰©ç†è®¾å¤‡çš„ å±æ€§ï¼Œå¡«å…… VkPhysicalDeviceProperties ç»“æ„ä½“
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-    //»ñÈ¡¸ÃÎïÀíÉè±¸Ö§³ÖµÄ ¹¦ÄÜÌØĞÔ£¨Èç£º¼¸ºÎ×ÅÉ«Æ÷¡¢tessellation µÈ£©¡£
+    // è·å–è¯¥ç‰©ç†è®¾å¤‡æ”¯æŒçš„ åŠŸèƒ½ç‰¹æ€§ï¼ˆå¦‚ï¼šå‡ ä½•ç€è‰²å™¨ã€tessellation ç­‰ï¼‰ã€‚
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
     int score = 0;
 
-    // ÓÅÏÈÊ¹ÓÃ¶ÀÁ¢ÏÔ¿¨£¨Discrete GPU£©
+    // ä¼˜å…ˆä½¿ç”¨ç‹¬ç«‹æ˜¾å¡ï¼ˆDiscrete GPUï¼‰
     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
         score += 1000;
     }
 
-    // Ö§³ÖµÄ×î´ó 2D ÎÆÀí³ß´çÔ½´ó£¬Í¼ĞÎÖÊÁ¿Ç±Á¦Ô½¸ß
+    // æ”¯æŒçš„æœ€å¤§ 2D çº¹ç†å°ºå¯¸è¶Šå¤§ï¼Œå›¾å½¢è´¨é‡æ½œåŠ›è¶Šé«˜
     score += deviceProperties.limits.maxImageDimension2D;
 
-    // ²»Ö§³Ö¼¸ºÎ×ÅÉ«Æ÷µÄÉè±¸Ö±½ÓÌÔÌ­
+    // ä¸æ”¯æŒå‡ ä½•ç€è‰²å™¨çš„è®¾å¤‡ç›´æ¥æ·˜æ±°
     if (!deviceFeatures.geometryShader) {
         return 0;
     }
@@ -879,25 +883,25 @@ QueueFamilyIndices TriangleFunc::findQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
 
-    //²éÑ¯ÎïÀíÉè±¸Ö§³ÖµÄ¶ÓÁĞ×åÊıÁ¿
+    // æŸ¥è¯¢ç‰©ç†è®¾å¤‡æ”¯æŒçš„é˜Ÿåˆ—æ—æ•°é‡
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     if (queueFamilyCount == 0) {
-        throw std::runtime_error("Î´ÄÜÕÒµ½µ±Ç°ÎïÀíÉè±¸µÄ¶ÓÁĞ×å!");
+        throw std::runtime_error("æœªèƒ½æ‰¾åˆ°å½“å‰ç‰©ç†è®¾å¤‡çš„é˜Ÿåˆ—æ—!");
     }
 
-    //»ñÈ¡¶ÓÁĞ×åÊôĞÔÁĞ±í¡£
+    // è·å–é˜Ÿåˆ—æ—å±æ€§åˆ—è¡¨ã€‚
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     int i = 0;
     for (const auto &queueFamily : queueFamilies) {
-        // ¼ì²éÊÇ·ñÖ§³ÖÍ¼ĞÎÖ¸Áî
+        // æ£€æŸ¥æ˜¯å¦æ”¯æŒå›¾å½¢æŒ‡ä»¤
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             indices.graphicsFamily = i;
         }
 
-        // ¼ì²éÊÇ·ñÖ§³Ö½«Í¼Ïñ³ÊÏÖµ½Ö¸¶¨ surface
+        // æ£€æŸ¥æ˜¯å¦æ”¯æŒå°†å›¾åƒå‘ˆç°åˆ°æŒ‡å®š surface
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, &presentSupport);
 
@@ -905,7 +909,7 @@ QueueFamilyIndices TriangleFunc::findQueueFamilies(VkPhysicalDevice device)
             indices.presentFamily = i;
         }
 
-        // Èç¹û¶¼ÕÒµ½ÁË£¬ÌáÇ°½áÊøËÑË÷
+        // å¦‚æœéƒ½æ‰¾åˆ°äº†ï¼Œæå‰ç»“æŸæœç´¢
         if (indices.isComplete()) {
             break;
         }
@@ -919,24 +923,24 @@ SwapChainSupportDetails TriangleFunc::querySwapChainSupport(VkPhysicalDevice dev
 {
     SwapChainSupportDetails details;
 
-    // ²éÑ¯±íÃæÄÜÁ¦£¨Èç×îĞ¡Í¼ÏñÊıÁ¿¡¢µ±Ç°Í¼Ïñ³ß´çµÈ£©
+    // æŸ¥è¯¢è¡¨é¢èƒ½åŠ›ï¼ˆå¦‚æœ€å°å›¾åƒæ•°é‡ã€å½“å‰å›¾åƒå°ºå¯¸ç­‰ï¼‰
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details.capabilities);
 
-    // ²éÑ¯Ö§³ÖµÄ±íÃæ¸ñÊ½ÊıÁ¿
+    // æŸ¥è¯¢æ”¯æŒçš„è¡¨é¢æ ¼å¼æ•°é‡
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
 
-    // Èç¹ûÓĞ¸ñÊ½£¬»ñÈ¡¸ñÊ½ÁĞ±í
+    // å¦‚æœæœ‰æ ¼å¼ï¼Œè·å–æ ¼å¼åˆ—è¡¨
     if (formatCount != 0) {
         details.formats.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, details.formats.data());
     }
 
-    // ²éÑ¯Ö§³ÖµÄ³ÊÏÖÄ£Ê½ÊıÁ¿
+    // æŸ¥è¯¢æ”¯æŒçš„å‘ˆç°æ¨¡å¼æ•°é‡
     uint32_t presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
 
-    // Èç¹ûÓĞÄ£Ê½£¬»ñÈ¡Ä£Ê½ÁĞ±í
+    // å¦‚æœæœ‰æ¨¡å¼ï¼Œè·å–æ¨¡å¼åˆ—è¡¨
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, details.presentModes.data());
@@ -955,7 +959,7 @@ VkSurfaceFormatKHR TriangleFunc::chooseSwapSurfaceFormat(const std::vector<VkSur
         }
     }
 
-    // »ØÍË²ßÂÔ£ºÊ¹ÓÃµÚÒ»¸ö¿ÉÓÃ¸ñÊ½
+    // å›é€€ç­–ç•¥ï¼šä½¿ç”¨ç¬¬ä¸€ä¸ªå¯ç”¨æ ¼å¼
     return availableFormats[0];
 }
 
@@ -967,23 +971,23 @@ VkPresentModeKHR TriangleFunc::chooseSwapPresentMode(const std::vector<VkPresent
         }
     }
 
-    // ËùÓĞ Vulkan Éè±¸¶¼±ØĞëÖ§³Ö FIFO Ä£Ê½
+    // æ‰€æœ‰ Vulkan è®¾å¤‡éƒ½å¿…é¡»æ”¯æŒ FIFO æ¨¡å¼
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
 VkExtent2D TriangleFunc::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities)
 {
-    // Èç¹û currentExtent ²»ÎªÌØÊâÖµ£¬ËµÃ÷Æ½Ì¨ÒÑÖ¸¶¨´óĞ¡£¨ÈçÄ³Ğ©²Ù×÷ÏµÍ³£©
+    // å¦‚æœ currentExtent ä¸ä¸ºç‰¹æ®Šå€¼ï¼Œè¯´æ˜å¹³å°å·²æŒ‡å®šå¤§å°ï¼ˆå¦‚æŸäº›æ“ä½œç³»ç»Ÿï¼‰
     if (capabilities.currentExtent.width != UINT32_MAX) {
         return capabilities.currentExtent;
     } else {
-        // ´Ó´°¿ÚÖĞ»ñÈ¡Ö¡»º³åÊµ¼Ê³ß´ç£¨µ¥Î»£ºÏñËØ£©
+        // ä»çª—å£ä¸­è·å–å¸§ç¼“å†²å®é™…å°ºå¯¸ï¼ˆå•ä½ï¼šåƒç´ ï¼‰
         int width, height;
         glfwGetFramebufferSize(_window, &width, &height);
 
         VkExtent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 
-        // ÏŞÖÆÍ¼Ïñ´óĞ¡ÔÚÉè±¸Ö§³ÖµÄ·¶Î§ÄÚ
+        // é™åˆ¶å›¾åƒå¤§å°åœ¨è®¾å¤‡æ”¯æŒçš„èŒƒå›´å†…
         actualExtent.width =
             std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 
@@ -996,20 +1000,20 @@ VkExtent2D TriangleFunc::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabi
 
 std::vector<char> TriangleFunc::readFile(const std::string &filename)
 {
-    // ÒÔ¶ş½øÖÆ + ¹â±ê¶¨Î»µ½Ä©Î²£¨ÒÔ±ãÖ±½Ó»ñÈ¡ÎÄ¼ş´óĞ¡£©
+    // ä»¥äºŒè¿›åˆ¶ + å…‰æ ‡å®šä½åˆ°æœ«å°¾ï¼ˆä»¥ä¾¿ç›´æ¥è·å–æ–‡ä»¶å¤§å°ï¼‰
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        throw std::runtime_error("shaderÎÄ¼ş´ò¿ªÊ§°Ü!");
+        throw std::runtime_error("shaderæ–‡ä»¶æ‰“å¼€å¤±è´¥!");
     }
 
-    // »ñÈ¡ÎÄ¼ş´óĞ¡£¨¹â±êµ±Ç°Î»ÖÃ¼´ÎªÎÄ¼şÄ©Î²£©
+    // è·å–æ–‡ä»¶å¤§å°ï¼ˆå…‰æ ‡å½“å‰ä½ç½®å³ä¸ºæ–‡ä»¶æœ«å°¾ï¼‰
     size_t fileSize = static_cast<size_t>(file.tellg());
 
-    // ·ÖÅä»º³åÇø²¢¶ÁÈ¡ÎÄ¼şÄÚÈİ
+    // åˆ†é…ç¼“å†²åŒºå¹¶è¯»å–æ–‡ä»¶å†…å®¹
     std::vector<char> buffer(fileSize);
-    file.seekg(0);                         // ÖØÖÃ¶ÁÖ¸Õëµ½ÎÄ¼ş¿ªÍ·
-    file.read(buffer.data(), fileSize);    // ¶ÁÈ¡ËùÓĞÄÚÈİµ½ buffer
+    file.seekg(0);                         // é‡ç½®è¯»æŒ‡é’ˆåˆ°æ–‡ä»¶å¼€å¤´
+    file.read(buffer.data(), fileSize);    // è¯»å–æ‰€æœ‰å†…å®¹åˆ° buffer
 
     file.close();
     return buffer;
@@ -1017,15 +1021,15 @@ std::vector<char> TriangleFunc::readFile(const std::string &filename)
 
 VkShaderModule TriangleFunc::createShaderModule(const std::vector<char> &code)
 {
-    // ÉèÖÃ×ÅÉ«Æ÷Ä£¿é´´½¨ĞÅÏ¢
+    // è®¾ç½®ç€è‰²å™¨æ¨¡å—åˆ›å»ºä¿¡æ¯
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();                                     // ×Ö½Ú´óĞ¡
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());    // ×¢Òâ¶ÔÆë
+    createInfo.codeSize = code.size();                                     // å­—èŠ‚å¤§å°
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());    // æ³¨æ„å¯¹é½
 
     VkShaderModule shaderModule;
 
-    // ´´½¨×ÅÉ«Æ÷Ä£¿é
+    // åˆ›å»ºç€è‰²å™¨æ¨¡å—
     if (vkCreateShaderModule(_device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
         throw std::runtime_error("failed to create shader module!");
     }
@@ -1035,7 +1039,7 @@ VkShaderModule TriangleFunc::createShaderModule(const std::vector<char> &code)
 
 void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
-    // ÃüÁî»º³å¿ªÊ¼Â¼ÖÆ
+    // å‘½ä»¤ç¼“å†²å¼€å§‹å½•åˆ¶
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -1043,7 +1047,7 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
         throw std::runtime_error("failed to begin recording command buffer!");
     }
 
-    // ÅäÖÃäÖÈ¾Í¨µÀ¿ªÊ¼ĞÅÏ¢£¨Ê¹ÓÃµ±Ç°Ö¡µÄÖ¡»º³å£©
+    // é…ç½®æ¸²æŸ“é€šé“å¼€å§‹ä¿¡æ¯ï¼ˆä½¿ç”¨å½“å‰å¸§çš„å¸§ç¼“å†²ï¼‰
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = _renderPass;
@@ -1051,18 +1055,18 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = _swapChainExtent;
 
-    // ÉèÖÃÇå³ıÑÕÉ«£¨RGBA = ºÚÉ«²»Í¸Ã÷£©
+    // è®¾ç½®æ¸…é™¤é¢œè‰²ï¼ˆRGBA = é»‘è‰²ä¸é€æ˜ï¼‰
     VkClearValue clearColor = {{{_backColor.x, _backColor.y, _backColor.z, 1.0f}}};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
-    // ¿ªÊ¼äÖÈ¾¹ı³Ì£¨×ÓÍ¨µÀÖ´ĞĞ·½Ê½£ºinline£©
+    // å¼€å§‹æ¸²æŸ“è¿‡ç¨‹ï¼ˆå­é€šé“æ‰§è¡Œæ–¹å¼ï¼šinlineï¼‰
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    // °ó¶¨Í¼ĞÎ¹ÜÏß£¨±ØĞëÔÚ render pass ÄÚ²¿°ó¶¨£©
+    // ç»‘å®šå›¾å½¢ç®¡çº¿ï¼ˆå¿…é¡»åœ¨ render pass å†…éƒ¨ç»‘å®šï¼‰
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
 
-    // ÉèÖÃÊÓ¿Ú£¨Óë½»»»Á´´óĞ¡Ò»ÖÂ£©
+    // è®¾ç½®è§†å£ï¼ˆä¸äº¤æ¢é“¾å¤§å°ä¸€è‡´ï¼‰
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
@@ -1072,22 +1076,22 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-    // ÉèÖÃ²Ã¼ô¾ØĞÎ£¨ÓëÊÓ¿ÚÒ»ÖÂ£©
+    // è®¾ç½®è£å‰ªçŸ©å½¢ï¼ˆä¸è§†å£ä¸€è‡´ï¼‰
     VkRect2D scissor{};
     scissor.offset = {0, 0};
     scissor.extent = _swapChainExtent;
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    // ·¢³ö»æÖÆÈı½ÇĞÎÃüÁî£¨¶¥µãÊı = 3£¬ÊµÀıÊı = 1£©
+    // å‘å‡ºç»˜åˆ¶ä¸‰è§’å½¢å‘½ä»¤ï¼ˆé¡¶ç‚¹æ•° = 3ï¼Œå®ä¾‹æ•° = 1ï¼‰
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
-    // ImGui äÖÈ¾ÃüÁî£¬±ØĞëÔÚ RenderPass ÄÚµ÷ÓÃ£¡
+    // ImGui æ¸²æŸ“å‘½ä»¤ï¼Œå¿…é¡»åœ¨ RenderPass å†…è°ƒç”¨ï¼
     renderImGui(commandBuffer);
 
-    // ½áÊøäÖÈ¾¹ı³Ì
+    // ç»“æŸæ¸²æŸ“è¿‡ç¨‹
     vkCmdEndRenderPass(commandBuffer);
 
-    // ÃüÁî»º³å½áÊøÂ¼ÖÆ
+    // å‘½ä»¤ç¼“å†²ç»“æŸå½•åˆ¶
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         throw std::runtime_error("failed to record command buffer!");
     }
@@ -1095,8 +1099,8 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
 
 void TriangleFunc::framebufferResizeCallback(GLFWwindow *window, int width, int height)
 {
-    auto app = reinterpret_cast<TriangleFunc *>(glfwGetWindowUserPointer(window));    // »ñÈ¡°ó¶¨µÄÓ¦ÓÃÊµÀıÖ¸Õë
-    app->_framebufferResized = true;    // ±ê¼ÇÖ¡»º³åÒÑ±»µ÷Õû´óĞ¡£¬ÑÓ³Ù´¦ÀíÖØ½¨½»»»Á´
+    auto app = reinterpret_cast<TriangleFunc *>(glfwGetWindowUserPointer(window));    // è·å–ç»‘å®šçš„åº”ç”¨å®ä¾‹æŒ‡é’ˆ
+    app->_framebufferResized = true;    // æ ‡è®°å¸§ç¼“å†²å·²è¢«è°ƒæ•´å¤§å°ï¼Œå»¶è¿Ÿå¤„ç†é‡å»ºäº¤æ¢é“¾
 }
 
 void TriangleFunc::recreateSwapChain()
@@ -1104,59 +1108,59 @@ void TriangleFunc::recreateSwapChain()
     int width = 0, height = 0;
     glfwGetFramebufferSize(_window, &width, &height);
 
-    // µ±´°¿Ú±»×îĞ¡»¯Ê±£¨¿í»ò¸ßÎª0£©£¬µÈ´ıÖ±µ½ÓÃ»§»Ö¸´´°¿Ú
+    // å½“çª—å£è¢«æœ€å°åŒ–æ—¶ï¼ˆå®½æˆ–é«˜ä¸º0ï¼‰ï¼Œç­‰å¾…ç›´åˆ°ç”¨æˆ·æ¢å¤çª—å£
     while (width == 0 || height == 0) {
         glfwGetFramebufferSize(_window, &width, &height);
-        glfwWaitEvents();    // µÈ´ıÊÂ¼ş£¨ÀıÈç´°¿Ú»Ö¸´£©
+        glfwWaitEvents();    // ç­‰å¾…äº‹ä»¶ï¼ˆä¾‹å¦‚çª—å£æ¢å¤ï¼‰
     }
 
-    vkDeviceWaitIdle(_device);    // È·±£ GPU ²»ÔÙÊ¹ÓÃ¾ÉµÄ½»»»Á´×ÊÔ´
+    vkDeviceWaitIdle(_device);    // ç¡®ä¿ GPU ä¸å†ä½¿ç”¨æ—§çš„äº¤æ¢é“¾èµ„æº
 
-    cleanupSwapChain();    // Ïú»Ù¾ÉµÄ½»»»Á´Ïà¹Ø×ÊÔ´
+    cleanupSwapChain();    // é”€æ¯æ—§çš„äº¤æ¢é“¾ç›¸å…³èµ„æº
 
-    createSwapChain();       // ÖØĞÂ´´½¨½»»»Á´
-    createImageViews();      // ÖØĞÂ´´½¨Í¼ÏñÊÓÍ¼
-    createFramebuffers();    // ÖØĞÂ´´½¨Ö¡»º³å
+    createSwapChain();       // é‡æ–°åˆ›å»ºäº¤æ¢é“¾
+    createImageViews();      // é‡æ–°åˆ›å»ºå›¾åƒè§†å›¾
+    createFramebuffers();    // é‡æ–°åˆ›å»ºå¸§ç¼“å†²
 }
 
 void TriangleFunc::cleanupSwapChain()
 {
-    // Ïú»ÙÃ¿¸öÍ¼ÏñµÄÖ¡»º³å
+    // é”€æ¯äº¤æ¢é“¾ä¸­æ‰€æœ‰çš„å¸§ç¼“å†²å¯¹è±¡ï¼Œé‡Šæ”¾ç›¸å…³æ˜¾å­˜èµ„æº
     for (auto framebuffer : _swapChainFramebuffers) {
         vkDestroyFramebuffer(_device, framebuffer, nullptr);
     }
-    _swapChainFramebuffers.clear();
+    _swapChainFramebuffers.clear();    // æ¸…ç©ºå¸§ç¼“å†²åˆ—è¡¨
 
-    // Ïú»ÙÃ¿¸öÍ¼ÏñµÄÍ¼ÏñÊÓÍ¼
+    // é”€æ¯äº¤æ¢é“¾ä¸­æ‰€æœ‰çš„å›¾åƒè§†å›¾ï¼Œé‡Šæ”¾å¯¹åº”çš„å›¾åƒèµ„æºå¼•ç”¨
     for (auto imageView : _swapChainImageViews) {
         vkDestroyImageView(_device, imageView, nullptr);
     }
-    _swapChainImageViews.clear();
+    _swapChainImageViews.clear();    // æ¸…ç©ºå›¾åƒè§†å›¾åˆ—è¡¨
 
-    // Ïú»Ù½»»»Á´±¾Ìå
+    // é”€æ¯äº¤æ¢é“¾å¯¹è±¡æœ¬èº«ï¼Œé‡Šæ”¾äº¤æ¢é“¾å ç”¨çš„èµ„æº
     vkDestroySwapchainKHR(_device, _swapChain, nullptr);
-    _swapChain = VK_NULL_HANDLE;
+    _swapChain = VK_NULL_HANDLE;    // æ ‡è®°äº¤æ¢é“¾ä¸ºç©ºï¼Œé¿å…è¯¯ç”¨
 }
 
 bool TriangleFunc::checkValidationLayerSupport()
 {
-    //»ñÈ¡ÏµÍ³Ö§³ÖµÄÑéÖ¤²ãÊıÁ¿
+    // è·å–ç³»ç»Ÿæ”¯æŒçš„éªŒè¯å±‚æ•°é‡
     uint32_t layerCount;
     VkResult result = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     if (result != VK_SUCCESS) {
-        std::cerr << "»ñÈ¡Vulkan ÊµÀıÑéÖ¤²ãÊıÁ¿´íÎó!" << std::endl;
+        std::cerr << "è·å–Vulkan å®ä¾‹éªŒè¯å±‚æ•°é‡é”™è¯¯!" << std::endl;
         return {};
     }
 
-    //»ñÈ¡ÏµÍ³Ö§³ÖµÄÑéÖ¤²ãĞÅÏ¢
+    // è·å–ç³»ç»Ÿæ”¯æŒçš„éªŒè¯å±‚ä¿¡æ¯
     std::vector<VkLayerProperties> availableLayers(layerCount);
     result = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
     if (result != VK_SUCCESS) {
-        std::cerr << "»ñÈ¡Vulkan ÊµÀıÑéÖ¤²ãĞÅÏ¢´íÎó!" << std::endl;
+        std::cerr << "è·å–Vulkan å®ä¾‹éªŒè¯å±‚ä¿¡æ¯é”™è¯¯!" << std::endl;
         return {};
     }
 
-    //¼ì²éÁĞ±íÖĞÊÇ·ñ´æÔÚËùÓĞ²ã
+    // æ£€æŸ¥åˆ—è¡¨ä¸­æ˜¯å¦å­˜åœ¨æ‰€æœ‰å±‚
     for (const char *layerName : _validationLayers) {
         bool layerFound = false;
 
@@ -1175,14 +1179,14 @@ bool TriangleFunc::checkValidationLayerSupport()
 
 std::vector<const char *> TriangleFunc::getRequiredExtensions()
 {
-    //»ñÈ¡glfw´°¿ÚÀ©Õ¹
+    // è·å–glfwçª—å£æ‰©å±•
     const char **glfwExtensions;
     uint32_t glfwExtensionCount = 0;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    //Èç¹ûÆôÓÃÁËÑéÖ¤²ã
+    // å¦‚æœå¯ç”¨äº†éªŒè¯å±‚
     if (_enableValidationLayers) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
@@ -1231,19 +1235,19 @@ VKAPI_ATTR VkBool32 VKAPI_CALL TriangleFunc::debugCallback(VkDebugUtilsMessageSe
                                                            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                            void *pUserData)
 {
-    std::cerr << "ÑéÖ¤²ã: " << pCallbackData->pMessage << std::endl;
+    std::cerr << "éªŒè¯å±‚: " << pCallbackData->pMessage << std::endl;
 
-    //ÖØÒªÏûÏ¢,ĞèÒªÌáĞÑ
-    // if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-    //    // Message is important enough to show
-    //}
+    // é‡è¦æ¶ˆæ¯,éœ€è¦æé†’
+    //  if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+    //     // Message is important enough to show
+    // }
 
     return VK_FALSE;
 }
 
 void TriangleFunc::createImGuiDescriptorPool()
 {
-    // ¶¨ÒåÒ»¸öÊı×é£¬Ö¸¶¨¸÷ÖÖÀàĞÍµÄÃèÊö·û¼°ÆäÊıÁ¿£¬Âú×ã ImGui ÔÚ Vulkan ÖĞµÄ×ÊÔ´°ó¶¨ĞèÇó
+    // å®šä¹‰ä¸€ä¸ªæ•°ç»„ï¼ŒæŒ‡å®šå„ç§ç±»å‹çš„æè¿°ç¬¦åŠå…¶æ•°é‡ï¼Œæ»¡è¶³ ImGui åœ¨ Vulkan ä¸­çš„èµ„æºç»‘å®šéœ€æ±‚
     VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
                                          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
                                          {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
@@ -1256,19 +1260,19 @@ void TriangleFunc::createImGuiDescriptorPool()
                                          {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
                                          {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
 
-    // ÃèÊö·û³Ø´´½¨ĞÅÏ¢½á¹¹Ìå
+    // æè¿°ç¬¦æ± åˆ›å»ºä¿¡æ¯ç»“æ„ä½“
     VkDescriptorPoolCreateInfo pool_info{};
     pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    // ÔÊĞíµ¥¸öÃèÊö·û¼¯µÄÊÍ·Å
+    // å…è®¸å•ä¸ªæè¿°ç¬¦é›†çš„é‡Šæ”¾
     pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    // ÃèÊö·û³Ø¿ÉÈİÄÉµÄ×î´óÃèÊö·û¼¯ÊıÁ¿£¬µÈÓÚÀàĞÍÊıÁ¿³ËÒÔÃ¿ÀàĞÍÊıÁ¿
+    // æè¿°ç¬¦æ± å¯å®¹çº³çš„æœ€å¤§æè¿°ç¬¦é›†æ•°é‡ï¼Œç­‰äºç±»å‹æ•°é‡ä¹˜ä»¥æ¯ç±»å‹æ•°é‡
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-    // ÃèÊö·ûÀàĞÍÊıÁ¿
+    // æè¿°ç¬¦ç±»å‹æ•°é‡
     pool_info.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(pool_sizes));
-    // Ö¸ÏòÃèÊö·ûÀàĞÍÊı×é
+    // æŒ‡å‘æè¿°ç¬¦ç±»å‹æ•°ç»„
     pool_info.pPoolSizes = pool_sizes;
 
-    // ´´½¨ Vulkan ÃèÊö·û³Ø£¬Ê§°ÜÊ±Å×³öÒì³£
+    // åˆ›å»º Vulkan æè¿°ç¬¦æ± ï¼Œå¤±è´¥æ—¶æŠ›å‡ºå¼‚å¸¸
     if (vkCreateDescriptorPool(_device, &pool_info, nullptr, &_imguiDescriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create ImGui descriptor pool!");
     }
@@ -1277,13 +1281,13 @@ void TriangleFunc::createImGuiDescriptorPool()
 void TriangleFunc::check_vk_result(VkResult err)
 {
     if (err == VK_SUCCESS) {
-        return;    // ³É¹¦£¬ÎŞĞè´¦Àí
+        return;    // æˆåŠŸï¼Œæ— éœ€å¤„ç†
     }
 
-    // ´òÓ¡´íÎóĞÅÏ¢£¬·½±ãµ÷ÊÔ
+    // æ‰“å°é”™è¯¯ä¿¡æ¯ï¼Œæ–¹ä¾¿è°ƒè¯•
     fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
 
-    // ÑÏÖØ´íÎóÊ±ÖÕÖ¹³ÌĞòÖ´ĞĞ
+    // ä¸¥é‡é”™è¯¯æ—¶ç»ˆæ­¢ç¨‹åºæ‰§è¡Œ
     if (err < 0) {
         abort();
     }
@@ -1302,7 +1306,7 @@ VkCommandBuffer TriangleFunc::beginSingleTimeCommands()
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    // ±ê¼Ç¸ÃÃüÁî»º³åÎªÒ»´ÎĞÔÌá½»£¬±ãÓÚÇı¶¯ÓÅ»¯
+    // æ ‡è®°è¯¥å‘½ä»¤ç¼“å†²ä¸ºä¸€æ¬¡æ€§æäº¤ï¼Œä¾¿äºé©±åŠ¨ä¼˜åŒ–
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
@@ -1312,43 +1316,40 @@ VkCommandBuffer TriangleFunc::beginSingleTimeCommands()
 
 void TriangleFunc::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 {
-    // ½áÊøÃüÁî»º³åÂ¼ÖÆ
+    // ç»“æŸå‘½ä»¤ç¼“å†²å½•åˆ¶
     vkEndCommandBuffer(commandBuffer);
 
-    // Ìá½»ÃüÁî»º³åĞÅÏ¢
+    // æäº¤å‘½ä»¤ç¼“å†²ä¿¡æ¯
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    // ½«ÃüÁî»º³åÌá½»µ½Í¼ĞÎ¶ÓÁĞÖ´ĞĞ
+    // å°†å‘½ä»¤ç¼“å†²æäº¤åˆ°å›¾å½¢é˜Ÿåˆ—æ‰§è¡Œ
     vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    // ×èÈûµÈ´ı¶ÓÁĞÖ´ĞĞÍê³É£¬È·±£ÃüÁî»º³åÖ´ĞĞÍê±Ï
+    // é˜»å¡ç­‰å¾…é˜Ÿåˆ—æ‰§è¡Œå®Œæˆï¼Œç¡®ä¿å‘½ä»¤ç¼“å†²æ‰§è¡Œå®Œæ¯•
     vkQueueWaitIdle(_graphicsQueue);
 
-    // ÊÍ·ÅÃüÁî»º³å£¬¹é»¹ÃüÁî³Ø
+    // é‡Šæ”¾å‘½ä»¤ç¼“å†²ï¼Œå½’è¿˜å‘½ä»¤æ± 
     vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
 }
 
 void TriangleFunc::renderImGui(VkCommandBuffer cmdBuf)
 {
-    // ¿ªÊ¼ĞÂÒ»Ö¡ ImGui äÖÈ¾×¼±¸£¨Vulkan + GLFW£©
+    // å¼€å§‹æ–°ä¸€å¸§ ImGui æ¸²æŸ“å‡†å¤‡ï¼ˆVulkan + GLFWï¼‰
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // ´´½¨Ò»¸öÊ¾Àı´°¿ÚºÍ¿Ø¼ş
-    ImGui::Begin("Demo Window");
-    ImGui::Text("Hello from ImGui!");    // ÎÄ±¾ÏÔÊ¾
-    static float slider = 0.5f;
-    ImGui::SliderFloat("A float", &slider, 0.0f, 1.0f);        // »¬¿é¿Ø¼ş
-    ImGui::ColorEdit3("clear color", (float *)&_backColor);    // ÑÕÉ«±à¼­Æ÷£¬°ó¶¨×Ô¶¨ÒåÇåÆÁÑÕÉ«±äÁ¿
+    // åˆ›å»ºä¸€ä¸ªç¤ºä¾‹çª—å£å’Œæ§ä»¶
+    ImGui::Begin(u8"æ§åˆ¶çª—å£!");
+    ImGui::ColorEdit3(u8"èƒŒæ™¯è‰²", (float *)&_backColor);    // é¢œè‰²ç¼–è¾‘å™¨ï¼Œç»‘å®šè‡ªå®šä¹‰æ¸…å±é¢œè‰²å˜é‡
     ImGui::End();
 
-    // ½áÊø ImGui Ö¡£¬²¢Éú³É»æÖÆÊı¾İ
+    // ç»“æŸ ImGui å¸§ï¼Œå¹¶ç”Ÿæˆç»˜åˆ¶æ•°æ®
     ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
 
-    // Ê¹ÓÃ Vulkan ÃüÁî»º³åÖ´ĞĞ ImGui »æÖÆÃüÁî
+    // ä½¿ç”¨ Vulkan å‘½ä»¤ç¼“å†²æ‰§è¡Œ ImGui ç»˜åˆ¶å‘½ä»¤
     ImGui_ImplVulkan_RenderDrawData(draw_data, cmdBuf);
 }

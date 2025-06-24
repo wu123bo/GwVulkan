@@ -1,14 +1,14 @@
-#ifndef PRINT_H_
+ï»¿#ifndef PRINT_H_
 #define PRINT_H_
 
 #include <iostream>
 #include <vector>
 
 /**
- * @brief ´òÓ¡ std::vector ÈİÆ÷ÖĞµÄËùÓĞÔªËØ£¨½öÔÚ Debug Ä£Ê½ÏÂ£©¡£
+ * @brief æ‰“å° std::vector å®¹å™¨ä¸­çš„æ‰€æœ‰å…ƒç´ ï¼ˆä»…åœ¨ Debug æ¨¡å¼ä¸‹ï¼‰ã€‚
  *
- * @tparam T ÔªËØÀàĞÍ£¬ĞèÖ§³ÖÊä³ö²Ù×÷·û <<¡£
- * @param vec ´ı´òÓ¡µÄ vector ÈİÆ÷¡£
+ * @tparam T å…ƒç´ ç±»å‹ï¼Œéœ€æ”¯æŒè¾“å‡ºæ“ä½œç¬¦ <<ã€‚
+ * @param vec å¾…æ‰“å°çš„ vector å®¹å™¨ã€‚
  */
 template <typename T>
 void PrintVec(const T &vec)
@@ -21,10 +21,10 @@ void PrintVec(const T &vec)
 }
 
 /**
- * @brief ´òÓ¡±êÌâ std::vector ÈİÆ÷ÖĞµÄËùÓĞÔªËØ£¨½öÔÚ Debug Ä£Ê½ÏÂ£©¡£
+ * @brief æ‰“å°æ ‡é¢˜ std::vector å®¹å™¨ä¸­çš„æ‰€æœ‰å…ƒç´ ï¼ˆä»…åœ¨ Debug æ¨¡å¼ä¸‹ï¼‰ã€‚
  *
- * @tparam T ÔªËØÀàĞÍ£¬ĞèÖ§³ÖÊä³ö²Ù×÷·û <<¡£
- * @param vec ´ı´òÓ¡µÄ vector ÈİÆ÷¡£
+ * @tparam T å…ƒç´ ç±»å‹ï¼Œéœ€æ”¯æŒè¾“å‡ºæ“ä½œç¬¦ <<ã€‚
+ * @param vec å¾…æ‰“å°çš„ vector å®¹å™¨ã€‚
  */
 template <typename T>
 void PrintVec(const std::string &title, const T &vec)
@@ -36,20 +36,20 @@ void PrintVec(const std::string &title, const T &vec)
 }
 
 /**
- * @brief ´òÓ¡ Vulkan ÎïÀíÉè±¸ÊôĞÔ¼°ÆÀ·Ö£¨½ö Debug Ä£Ê½ÏÂÆôÓÃ£©¡£
+ * @brief æ‰“å° Vulkan ç‰©ç†è®¾å¤‡å±æ€§åŠè¯„åˆ†ï¼ˆä»… Debug æ¨¡å¼ä¸‹å¯ç”¨ï¼‰ã€‚
  *
- * @param deviceProperties Vulkan ÎïÀíÉè±¸ÊôĞÔ½á¹¹Ìå¡£
- * @param score Éè±¸ÆÀ·Ö¡£
+ * @param deviceProperties Vulkan ç‰©ç†è®¾å¤‡å±æ€§ç»“æ„ä½“ã€‚
+ * @param score è®¾å¤‡è¯„åˆ†ã€‚
  */
 template <typename T, typename T2>
 void PrintPhysicalDev(const T &deviceProperties, T2 score)
 {
 #ifndef NDEBUG
-    std::cout << "Éè±¸Ãû³Æ: " << deviceProperties.deviceName << std::endl;
-    std::cout << "API °æ±¾: " << VK_VERSION_MAJOR(deviceProperties.apiVersion) << "."
+    std::cout << "è®¾å¤‡åç§°: " << deviceProperties.deviceName << std::endl;
+    std::cout << "API ç‰ˆæœ¬: " << VK_VERSION_MAJOR(deviceProperties.apiVersion) << "."
               << VK_VERSION_MINOR(deviceProperties.apiVersion) << "." << VK_VERSION_PATCH(deviceProperties.apiVersion)
               << std::endl;
-    std::cout << "ÆÀ·Ö: " << score << std::endl;
+    std::cout << "è¯„åˆ†: " << score << std::endl;
 #endif
 }
 
