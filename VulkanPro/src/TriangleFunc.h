@@ -16,7 +16,12 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
 
+#include "glm/glm.hpp"
 #include "vulkan/vulkan.h"
+
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+#include "imgui.h"
 
 #include "MacroHead.h"
 
@@ -37,6 +42,11 @@ private:
      * 创建用于 Vulkan 渲染的窗口句柄。
      */
     void initWindow();
+
+    /**
+     * @brief 初始化 ImGui，绑定 Vulkan 和 GLFW，用于后续绘制界面。
+     */
+    void initImgui();
 
     /**
      * @brief 初始化 Vulkan 相关对象。
@@ -487,12 +497,73 @@ private:
                                                         void *pUserData);
 
 private:
+    /**
+     * @brief 创建用于 ImGui 的 Vulkan 描述符池。
+     *
+     * 描述符池（Descriptor Pool）是 Vulkan 中用于管理描述符集（Descriptor Sets）内存的对象。
+     * ImGui 在 Vulkan 后端需要大量不同类型的描述符（如采样器、图像、缓冲区等）来绑定资源，
+     * 因此需要创建一个容量较大的描述符池，保证在渲染过程中不会出现描述符分配不足的问题。
+     *
+     * 函数实现细节：
+     * - 定义一个 VkDescriptorPoolSize 数组，列举了 ImGui 可能用到的各种描述符类型及其数量。
+     * - 设置 VkDescriptorPoolCreateInfo 结构体，指定池的创建参数：
+     *   - flags 设置为 VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT，允许释放单个描述符集。
+     *   - maxSets 是池中最大描述符集数量，设置为所有类型数量之和的乘积。
+     *   - poolSizeCount 和 pPoolSizes 指向描述符类型数组。
+     * - 调用 vkCreateDescriptorPool 创建描述符池，失败时抛出异常。
+     */
+    void createImGuiDescriptorPool();
+
+    /**
+     * @brief 检查 Vulkan 函数调用的返回结果，输出错误信息并在错误时终止程序。
+     *
+     * @param err Vulkan 函数返回的 VkResult 结果码。
+     *
+     * 如果返回值是 VK_SUCCESS，说明操作成功，函数直接返回。
+     * 如果返回错误码，则打印错误信息。
+     * 如果错误码是负值（表示严重错误），程序会调用 abort() 终止运行。
+     */
+    static void check_vk_result(VkResult err);
+
+    /**
+     * @brief 开始一次短期使用的命令缓冲录制。
+     *
+     * 该函数为一次性提交（one-time submit）场景准备命令缓冲：
+     *  - 从命令池分配一个主命令缓冲（primary command buffer）。
+     *  - 开始录制，设置使用标志为 ONE_TIME_SUBMIT，提示 Vulkan 该缓冲只用一次。
+     *
+     * @return VkCommandBuffer 返回新分配并开始录制的命令缓冲对象。
+     */
+    VkCommandBuffer beginSingleTimeCommands();
+
+    /**
+     * @brief 结束一次短期使用的命令缓冲录制并提交执行。
+     *
+     * 该函数会完成命令缓冲的录制，提交到图形队列执行，并等待执行完成后释放该命令缓冲。
+     *
+     * @param commandBuffer 已开始录制的命令缓冲对象。
+     */
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+    /**
+     * @brief 在给定的 Vulkan 命令缓冲中渲染 ImGui 界面。
+     *
+     * 该函数负责启动 ImGui 新帧，构建示例 UI 界面内容，最终将 ImGui 绘制命令提交到 Vulkan 命令缓冲。
+     *
+     * @param cmdBuf 用于提交 ImGui 绘制命令的 Vulkan 命令缓冲。
+     */
+    void renderImGui(VkCommandBuffer cmdBuf);
+
+private:
     int _width;
 
     int _height;
 
     // GLFW窗口句柄，负责窗口管理和输入处理
     GLFWwindow *_window;
+
+    //窗口背景色
+    glm::vec3 _backColor = glm::vec3(0.0f);
 
 private:
     // Vulkan实例，代表整个Vulkan连接和状态
@@ -592,6 +663,12 @@ private:
 
     // 默认验证层信息
     const std::vector<const char *> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+private:
+    //imgui
+    uint32_t _graphicsQueueFamily = 0;
+
+    VkDescriptorPool _imguiDescriptorPool = VK_NULL_HANDLE;
 };
 
 #endif    // !TRIANGLEFUNC_H_

@@ -14,6 +14,7 @@ void TriangleFunc::Run()
 {
     initWindow();
     initVulkan();
+    initImgui();
     mainLoop();
     cleanup();
 }
@@ -37,6 +38,63 @@ void TriangleFunc::initWindow()
 
     // 设置窗口大小改变时的回调函数，负责标记交换链需要重新创建
     glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
+}
+
+void TriangleFunc::initImgui()
+{
+    // 检查 ImGui 版本，确保链接的库版本正确
+    IMGUI_CHECKVERSION();
+
+    // 创建 ImGui 上下文，所有 ImGui 操作都基于这个上下文
+    ImGui::CreateContext();
+
+    // 获取 ImGui IO 配置对象，用于配置和查询输入输出状态
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+
+    // 启用键盘导航支持
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    // 启用游戏手柄导航支持
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    // 设置 ImGui 使用暗色主题样式
+    ImGui::StyleColorsDark();
+
+    // 初始化 ImGui 的平台层 GLFW 支持，传入 Vulkan 窗口和是否安装回调
+    ImGui_ImplGlfw_InitForVulkan(_window, true);
+
+    // 加载中文字体，设置字号18，支持完整的中文字符范围（GlyphRangesChineseFull）
+    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\msyh.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+
+    // 创建 ImGui 需要的 Vulkan 描述符池（Descriptor Pool），用于分配资源
+    createImGuiDescriptorPool();
+
+    // 填写 Vulkan 端的初始化信息结构体
+    ImGui_ImplVulkan_InitInfo init_info{};
+    init_info.Instance = _instance;                     // Vulkan 实例句柄
+    init_info.PhysicalDevice = _physicalDevice;         // 物理设备句柄
+    init_info.Device = _device;                         // 逻辑设备句柄
+    init_info.QueueFamily = _graphicsQueueFamily;       // 图形队列族索引
+    init_info.Queue = _graphicsQueue;                   // 图形队列句柄
+    init_info.PipelineCache = VK_NULL_HANDLE;           // Pipeline 缓存，一般为 null
+    init_info.DescriptorPool = _imguiDescriptorPool;    // ImGui 使用的描述符池
+    init_info.RenderPass = _renderPass;                 // 渲染通道句柄
+    init_info.Subpass = 0;                              // 渲染通道子通道索引
+    init_info.Allocator = nullptr;                      // 分配器，默认空
+    init_info.MinImageCount = _MAX_FRAMES_IN_FLIGHT;    // 最小图像数量（用于多帧同时绘制）
+    init_info.ImageCount = static_cast<uint32_t>(_swapChainImages.size());    // 交换链图像数量
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;    // 多重采样数量，当前设置为1（无多重采样）
+    init_info.CheckVkResultFn = check_vk_result;      // 错误检查回调函数（自定义）
+
+    // 初始化 ImGui Vulkan 后端，完成 Vulkan 相关的绑定设置
+    ImGui_ImplVulkan_Init(&init_info);
+
+    // 上传字体纹理到GPU（可选步骤，注释了，需要时取消注释）
+    // VkCommandBuffer cmd = beginSingleTimeCommands();
+    // ImGui_ImplVulkan_CreateFontsTexture(cmd);
+    // endSingleTimeCommands(cmd);
+    // ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 void TriangleFunc::initVulkan()
@@ -237,6 +295,9 @@ void TriangleFunc::createLogicalDevice()
 {
     // 查找当前物理设备支持的队列族（图形 + 呈现）
     QueueFamilyIndices indices = findQueueFamilies(_physicalDevice);
+
+    // Imgui使用
+    _graphicsQueueFamily = indices.graphicsFamily.value();
 
     // 使用 std::set 去重，确保不会重复创建相同队列族
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -991,7 +1052,7 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
     renderPassInfo.renderArea.extent = _swapChainExtent;
 
     // 设置清除颜色（RGBA = 黑色不透明）
-    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    VkClearValue clearColor = {{{_backColor.x, _backColor.y, _backColor.z, 1.0f}}};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -1019,6 +1080,9 @@ void TriangleFunc::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t i
 
     // 发出绘制三角形命令（顶点数 = 3，实例数 = 1）
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+    // ImGui 渲染命令，必须在 RenderPass 内调用！
+    renderImGui(commandBuffer);
 
     // 结束渲染过程
     vkCmdEndRenderPass(commandBuffer);
@@ -1175,4 +1239,116 @@ VKAPI_ATTR VkBool32 VKAPI_CALL TriangleFunc::debugCallback(VkDebugUtilsMessageSe
     //}
 
     return VK_FALSE;
+}
+
+void TriangleFunc::createImGuiDescriptorPool()
+{
+    // 定义一个数组，指定各种类型的描述符及其数量，满足 ImGui 在 Vulkan 中的资源绑定需求
+    VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+                                         {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
+
+    // 描述符池创建信息结构体
+    VkDescriptorPoolCreateInfo pool_info{};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    // 允许单个描述符集的释放
+    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    // 描述符池可容纳的最大描述符集数量，等于类型数量乘以每类型数量
+    pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+    // 描述符类型数量
+    pool_info.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(pool_sizes));
+    // 指向描述符类型数组
+    pool_info.pPoolSizes = pool_sizes;
+
+    // 创建 Vulkan 描述符池，失败时抛出异常
+    if (vkCreateDescriptorPool(_device, &pool_info, nullptr, &_imguiDescriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create ImGui descriptor pool!");
+    }
+}
+
+void TriangleFunc::check_vk_result(VkResult err)
+{
+    if (err == VK_SUCCESS) {
+        return;    // 成功，无需处理
+    }
+
+    // 打印错误信息，方便调试
+    fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
+
+    // 严重错误时终止程序执行
+    if (err < 0) {
+        abort();
+    }
+}
+
+VkCommandBuffer TriangleFunc::beginSingleTimeCommands()
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = _commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    // 标记该命令缓冲为一次性提交，便于驱动优化
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+void TriangleFunc::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+{
+    // 结束命令缓冲录制
+    vkEndCommandBuffer(commandBuffer);
+
+    // 提交命令缓冲信息
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    // 将命令缓冲提交到图形队列执行
+    vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    // 阻塞等待队列执行完成，确保命令缓冲执行完毕
+    vkQueueWaitIdle(_graphicsQueue);
+
+    // 释放命令缓冲，归还命令池
+    vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
+}
+
+void TriangleFunc::renderImGui(VkCommandBuffer cmdBuf)
+{
+    // 开始新一帧 ImGui 渲染准备（Vulkan + GLFW）
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    // 创建一个示例窗口和控件
+    ImGui::Begin("Demo Window");
+    ImGui::Text("Hello from ImGui!");    // 文本显示
+    static float slider = 0.5f;
+    ImGui::SliderFloat("A float", &slider, 0.0f, 1.0f);        // 滑块控件
+    ImGui::ColorEdit3("clear color", (float *)&_backColor);    // 颜色编辑器，绑定自定义清屏颜色变量
+    ImGui::End();
+
+    // 结束 ImGui 帧，并生成绘制数据
+    ImGui::Render();
+    ImDrawData *draw_data = ImGui::GetDrawData();
+
+    // 使用 Vulkan 命令缓冲执行 ImGui 绘制命令
+    ImGui_ImplVulkan_RenderDrawData(draw_data, cmdBuf);
 }
